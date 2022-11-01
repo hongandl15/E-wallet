@@ -1,0 +1,41 @@
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-5 col-lg-6 col-md-8 border mt-3 pt-3 rounded mx-3">
+                <div class="form-group text-small">
+                    <small><a href="/">Quay lại</a></small>
+                </div>
+                <h4 class="text-success">Thêm người dùng mới</h4>
+                <form novalidate class="mt-3" method="post">
+                    <div class="form-group">
+                        <label for="fullname">Họ tên</label>
+                        <input class="form-control" type="text" placeholder="Nhập tên người dùng" id="fullname" name="fullname">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Số điện thoại</label>
+                        <input class="form-control" type="phone" placeholder="Nhập SĐT" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input class="form-control" type="email" placeholder="Nhập email" id="email" name="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="birthdate">Ngày sinh</label>
+                        <input class="form-control" type="date" placeholder="Ngày sinh" value="2000-01-01" id="birthdate" name="birthdate">
+                    </div>
+                    <div class="alert alert-danger">
+                        Vui lòng nhập đầy đủ thông tin
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success mr-2">Thêm người dùng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Add the following code if you want the name of the file appear on select
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>

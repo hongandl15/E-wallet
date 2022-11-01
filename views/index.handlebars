@@ -1,0 +1,11 @@
+<div class="container my-3">
+    <h4 class="my-5 text-primary text-center text-uppercase">Ví điện tử</h4>
+    {{#if user}}
+        <h2>Xin chào {{user.fullname}}</h2>
+    <a class="btn btn-success btn-sm my-4" href="/user/{{user.username}}">Thông tin tài khoản</a>
+    <a class="btn btn-success btn-sm my-4" href="/deposit/{{user.username}}">Nạp tiền</a>
+    <a class="btn btn-success btn-sm my-4" href="/withdraw/{{user.username}}">Rút tiền</a>
+    <a class="btn btn-success btn-sm my-4" href="/transfer/{{user.username}}">Chuyển tiền</a>
+    <a class="btn btn-success btn-sm my-4" href="/buycard/{{user.username}}">Mua thẻ điện thoại</a>
+    {{/if}}
+</div>
