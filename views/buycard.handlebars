@@ -1,0 +1,43 @@
+<div>
+    <div class="modal-dialog">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Mua mã thẻ điện thoại</h4>
+          <button type="button" class="close" data-dismiss="modal" onclick="history.back()">&times;</button>
+        </div>
+          <!-- Modal body -->
+          <form method="post" action="/buycard/{{username}}">
+          <div class="modal-body">
+                  <div class="form-group">
+                    <label for="cardprice">Chọn mệnh giá thẻ </label>
+                     <select name="cardprice" id="cardprice">
+                      <option value='10000'>10.000 VNĐ</option>
+                      <option value='20000'>20.000 VNĐ</option>
+                      <option value='50000'>50.000 VNĐ</option>
+                      <option value='100000'>100.000 VNĐ</option>
+                    </select>
+                    <label for="cardtype">Chọn nhà mạng </label>
+                     <select name="cardtype" id="cardtype">
+                      <option value='11111'>Viettel</option>
+                      <option value='22222'>Mobifone</option>
+                      <option value='33333'>Vinaphone</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                      <label for="amount">Số lượng </label>
+                      <input class="form-control" type="number" placeholder="Nhập số lượng"  id="amount" name="amount" max="5" min="1">
+                  </div>
+                  <div class="form-group">
+                  <button class="btn btn-success mr-2">Mua mã thẻ</button>
+
+                </div>
+              </form>
+          </div>
+        
+        <!-- Modal footer -->
+          
+      </div>
+    </div>
+  </div>

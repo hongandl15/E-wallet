@@ -1,0 +1,17 @@
+<div class="container my-3">
+    <h4 class="my-5 text-primary text-center text-uppercase">Ví điện tử admin</h4>
+    {{#if user}}
+        <h2>Xin chào <strong>{{user.fullname}}</strong></h2>
+    <a class="btn btn-success btn-sm my-4" href="/admin/users">Quản lý tài khoản</a>
+    <a class="btn btn-success btn-sm my-4" href="/admin/transactions">Quản lý giao dịch</a>
+
+    {{/if}}
+
+    <script>
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+        document.getElementById('money').innerHTML = formatter.format({{user.balance}})
+    </script>
+</div>

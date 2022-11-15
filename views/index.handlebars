@@ -1,11 +1,23 @@
 <div class="container my-3">
     <h4 class="my-5 text-primary text-center text-uppercase">Ví điện tử</h4>
+
+    <a class="btn btn-success btn-sm my-4" href="/logout">Logout</a>
     {{#if user}}
-        <h2>Xin chào {{user.fullname}}</h2>
+        <h2>Xin chào <strong>{{user.fullname}}</strong></h2>
+        <h4>Số dư tài khoản <a id ='money'><a></h4>
     <a class="btn btn-success btn-sm my-4" href="/user/{{user.username}}">Thông tin tài khoản</a>
     <a class="btn btn-success btn-sm my-4" href="/deposit/{{user.username}}">Nạp tiền</a>
     <a class="btn btn-success btn-sm my-4" href="/withdraw/{{user.username}}">Rút tiền</a>
     <a class="btn btn-success btn-sm my-4" href="/transfer/{{user.username}}">Chuyển tiền</a>
     <a class="btn btn-success btn-sm my-4" href="/buycard/{{user.username}}">Mua thẻ điện thoại</a>
+    <a class="btn btn-success btn-sm my-4" href="/history/{{user.username}}">Lịch sử giao dịch</a>
     {{/if}}
+
+    <script>
+        const formatter = new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+        });
+        document.getElementById('money').innerHTML = formatter.format({{user.balance}})
+    </script>
 </div>

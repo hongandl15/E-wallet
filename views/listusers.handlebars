@@ -1,0 +1,29 @@
+<body>
+
+<div class="container my-3">
+    <h4 class="my-5 text-primary text-center text-uppercase">Danh sách tài khoản đang chờ kích hoạt</h4>
+    <table class="table table-striped border">
+        <thead>
+            <tr>
+                <th>username</th>
+                <th>email</th>    
+                <th>SĐT</th>
+                <th>Ngày sinh</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td><a href="/admin/{{username}}">{{username}}</a></td>
+                <td>{{email}}</td>
+                <td>{{phone}}</td>
+                <td>{{Birthdate}}</td>
+                <td>{{verified}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    <p>Tổng số user: <strong class="text-danger">5</strong></p>
+</div>
+</body>

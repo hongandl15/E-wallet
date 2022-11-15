@@ -5,7 +5,7 @@
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Nạp tiền vào tài khoản</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <button type="button" class="close" data-dismiss="modal" onclick="history.back()">&times;</button>
         </div>
           <!-- Modal body -->
           <form method="post" action="/deposit/{{username}}">
@@ -30,7 +30,7 @@
                       Vui lòng nhập đầy đủ thông tin
                   </div> --}}
                   <div class="form-group">
-                  <button class="btn btn-success mr-2">Cập nhật</button>
+                  <button class="btn btn-success mr-2">Nạp tiền</button>
                   {{!-- <button type="button" class="btn btn-dark" data-dismiss="modal" >Đóng</button> --}}
                 </div>
               </form>
