@@ -8,6 +8,13 @@ const User = require('./models/user.js')
 const wallet = require('./wallet.js')
 const login = require('./login.js')
 const admin = require('./admin.js')
+var formidable = require('formidable');
+var dataDir = __dirname + '/data';
+var PhotoDir = dataDir + '/photo';
+var fs = require('fs')
+fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
+fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
+
 
 mongoose.connect('mongodb://localhost:27017', function (err) {
 
@@ -39,6 +46,9 @@ app.engine('handlebars', hbs.engine({defaultLayout: 'main',}))
 app.set('view engine', 'handlebars')
 app.use(express.urlencoded())
 app.use(session({ secret: 'fafsdhalj' }))
+app.set('view engine', 'handlebars')
+app.use(express.static(__dirname + '/data'));
+app.use(require('body-parser')());
 
 app.use('/', login)
 app.use('/', wallet)

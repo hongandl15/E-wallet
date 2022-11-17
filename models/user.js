@@ -11,9 +11,16 @@ var userSchema = mongoose.Schema({
     balance: Number,
     available: Boolean,
     firstLogin: Boolean,
-    verified: Boolean,
+    status: String,
     role: String,
-    idcard: String,
+    wrongpw: Number,
+    unusuallogin: Number,
+    idcard: {
+        photofrontName: String,
+        photofrontPath: String,
+        photobackName: String,
+        photobackPath: String,
+    }
 });
 
 var User = mongoose.model('user', userSchema);
