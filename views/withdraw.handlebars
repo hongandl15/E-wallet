@@ -5,10 +5,10 @@
         <!-- Modal Header -->
         <div class="modal-header">
           <h4 class="modal-title">Rút tiền</h4>
-          <button type="button" class="close" data-dismiss="modal" onclick="history.back()">&times;</button>
+          <button type="button" class="close" data-dismiss="modal"><a href="/">&times;</a></button>
         </div>
           <!-- Modal body -->
-          <form method="post" action="/withdraw/{{username}}">
+          <form method="post" action="/withdraw">
           <div class="modal-body">
                   <div class="form-group">
                       <label for="cardnumber">Số thẻ  </label>
@@ -26,9 +26,14 @@
                       <label for="money">Số tiền muốn rút</label>
                       <input  class="form-control" type="number" placeholder="Nhập số tiền muốn rút" id="money" name="money">
                   </div>
-                  {{!-- <div class="alert alert-danger">
-                      Vui lòng nhập đầy đủ thông tin
-                  </div> --}}
+                  {{#if message}}
+                  <div class="form-group">
+                      <div class="alert alert-danger alert-dismissible fade show">
+                          <button type="button" class="close" data-dismiss="alert">&times;</button>
+                          {{message}}
+                      </div>
+                  </div>
+                  {{/if}}
                   <div class="form-group">
                   <button class="btn btn-success mr-2">Rút tiền</button>
                   {{!-- <button type="button" class="btn btn-dark" data-dismiss="modal" >Đóng</button> --}}

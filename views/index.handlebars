@@ -5,13 +5,26 @@
     {{#if user}}
         <h2>Xin chào <strong>{{user.fullname}}</strong></h2>
         <h4>Số dư tài khoản <a id ='money'><a></h4>
-    <a class="btn btn-success btn-sm my-4" href="/user/{{user.username}}">Thông tin tài khoản</a>
-    <a class="btn btn-success btn-sm my-4" href="/deposit/{{user.username}}">Nạp tiền</a>
-    <a class="btn btn-success btn-sm my-4" href="/withdraw/{{user.username}}">Rút tiền</a>
-    <a class="btn btn-success btn-sm my-4" href="/transfer/{{user.username}}">Chuyển tiền</a>
-    <a class="btn btn-success btn-sm my-4" href="/buycard/{{user.username}}">Mua thẻ điện thoại</a>
-    <a class="btn btn-success btn-sm my-4" href="/history/{{user.username}}">Lịch sử giao dịch</a>
+    <a class="btn btn-success btn-sm my-4" href="/user">Thông tin tài khoản</a>
+    <a class="btn btn-success btn-sm my-4" href="/deposit">Nạp tiền</a>
+    <a class="btn btn-success btn-sm my-4" href="/withdraw">Rút tiền</a>
+    <a class="btn btn-success btn-sm my-4" href="/transfer">Chuyển tiền</a>
+    <a class="btn btn-success btn-sm my-4" href="/buycard">Mua thẻ điện thoại</a>
+    <a class="btn btn-success btn-sm my-4" href="/history">Lịch sử giao dịch</a>
     {{/if}}
+
+    {{#if message}}
+    <div class="form-group">
+        <div class="alert alert-success alert-dismissible fade show">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{message}}
+        </div>
+    </div>
+    {{/if}}
+
+    {{!-- <div class="alert alert-danger">
+        Vui lòng nhập đầy đủ thông tin
+    </div> --}}
 
     <script>
         const formatter = new Intl.NumberFormat('vi-VN', {

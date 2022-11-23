@@ -7,7 +7,8 @@ var userSchema = mongoose.Schema({
     fullname: String,
     phone: String,
     email: String,
-    Birthdate: Date,
+    address: String,
+    Birthdate: String,
     balance: Number,
     available: Boolean,
     firstLogin: Boolean,
@@ -20,7 +21,9 @@ var userSchema = mongoose.Schema({
         photofrontPath: String,
         photobackName: String,
         photobackPath: String,
-    }
+    },
+    create_at: Date,
+    update_at: Date
 });
 
 var User = mongoose.model('user', userSchema);

@@ -8,7 +8,7 @@
           <button type="button" class="close" data-dismiss="modal" onclick="history.back()">&times;</button>
         </div>
           <!-- Modal body -->
-          <form method="post" action="/transfer/{{username}}">
+          <form method="post" action="/transfer">
           <div class="modal-body">
                   <div class="form-group">
                       <label for="phone">SĐT người nhận </label>
@@ -16,12 +16,13 @@
 
                    <div class="form-group">
                       <label for="money">Số tiền muốn chuyển</label>
-                      <input  class="form-control" type="number" placeholder="Nhập số tiền muốn chuyển" id="money" name="money">
+                      <input class="form-control" type="number" placeholder="Nhập số tiền muốn chuyển" id="money" name="money">
                   </div>
                    <div class="form-group">
                       <label for="note">Ghi chú</label>
                       <input  class="form-control" type="text" placeholder="Nhập ghi chú" id="note" name="note">
                   </div>
+
                   {{!-- <div class="alert alert-danger">
                       Vui lòng nhập đầy đủ thông tin
                   </div> --}}

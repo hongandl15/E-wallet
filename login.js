@@ -15,12 +15,14 @@ router.get('/', (req, res) => {
         return res.redirect('/login')
     }
     let us = req.session.user
+    let message = req.session.message
     User.findOne({username: us.username}, function(err, user){
         if(user != null){   
-            if(user.role == "admin")
+            req.session.user = user
+            if(user.role == "admin"){
                 return res.render('admin', {title: 'Quản trị viên', user}) 
-
-            return res.render('index', {title: 'Trang chủ', user})
+            }
+            return res.render('index', {title: 'Trang chủ', user , message: message})
 
         }
     }).lean()      
@@ -28,7 +30,8 @@ router.get('/', (req, res) => {
 
 // login
 router.get('/login', (req, res) => {
-    res.render('login')
+    var message = req.session.message;
+    res.render('login', {message: message})
 })
 
 router.post('/login', function(req, res){
@@ -41,9 +44,9 @@ router.post('/login', function(req, res){
             var time = 0
             if(user.unusuallogin == 1)
                 if(time < 1)
-                    return res.render('login', { layout: null, error: 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút'})
+                    return res.render('login', {layout: null, error: 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút'})
             else if (user.unusuallogin >=2) 
-                return res.render('login', { layout: null, error: 'Tài khoản đã bị khóa do nhập sai mật khẩu nhiều lần, vui lòng liên hệ quản trị viên để được hỗ trợ'})
+                return res.render('login', {layout: null, error: 'Tài khoản đã bị khóa do nhập sai mật khẩu nhiều lần, vui lòng liên hệ quản trị viên để được hỗ trợ'})
                 
             if(pw == user.password){        
                 req.session.user = user
@@ -51,11 +54,9 @@ router.post('/login', function(req, res){
                     return res.render('firstlogin', user)
                 }
                 User.updateOne({username: us},
-                    {$set: {wrongpw: 0, unusualogin: 0} },
-                    function(err,user){     
-                        return res.redirect('/')
-                    }
-                );          
+                    {$set: {wrongpw: 0, unusualogin: 0}}, function(err,user){}); 
+                return res.redirect('/')   
+
             }else if (user.role != "admin") {
                 wrongpassword+=1
                 if(wrongpassword == 3 || wrongpassword == 6){
@@ -74,9 +75,7 @@ router.post('/login', function(req, res){
     });
 });
 
-router.get('/login', (req, res) => {
-    res.render('login')
-})
+
 
 // logout
 router.get('/logout', function(req, res){
@@ -89,7 +88,6 @@ router.get('/register', (req, res) => {
     res.render('register')
 })
 router.post('/register', (req, res) => {
-
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files){
             if(err) return res.redirect(303, '/404');
@@ -113,7 +111,10 @@ router.post('/register', (req, res) => {
             fs.copyFile(backoldPath, backnewPath, function (err) {
                 if (err) throw err;
                 console.log('File uploaded and moved!');
+                console.log(utils.getBirthdate(fields.birthdate))
             });
+
+            console.log(utils.getBirthdate(fields.birthdate))
 
             new User({
                 username: utils.generate_username(9),
@@ -121,7 +122,7 @@ router.post('/register', (req, res) => {
                 fullname: fields.fullname,
                 phone: fields.phone,
                 email: fields.email,
-                Birthdate: fields.birthdate,
+                Birthdate: utils.getBirthdate(fields.birthdate),
                 balance: 0,
                 available: true,
                 firstLogin: true,
@@ -139,78 +140,64 @@ router.post('/register', (req, res) => {
             }).save();
 
         });
-    
-    return res.render('login', { layout: null, success: 'Đăng kí thành công tài khoản và mật khẩu đã được gửi về email của bạn' })
+    req.session.message = 'Đăng kí thành công tài khoản và mật khẩu đã được gửi về email của bạn'
+    return res.redirect('/')
 }) 
 
-
-
 // details user
-router.get('/user/', (req, res) => {
+router.get('/user', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login')
     }
     let user = req.session.user
-    let us = user.username
-    User.findOne({username: us}, function(err, user){
-        if(user != null){
-            console.log(us)  
-            return res.render('details', user)
-        } 
-        else {  
-            console.log(err)
-            return res.redirect('/')
-        }
-    });
+    return res.render('details', user)
 })
+
  //delete
 router.delete('/delete/:username', (req, res) => {
     let us = req.params.username
     User.deleteOne({username: us}, function(err, users){
         if(err) throw err;
-        
     })
     return res.render('index', {message : "da xoa thanh cong"})
 })
 
-
-router.get('/update/:username', (req, res) => {
-    let us = req.params.username
-    User.findOne({username: us}, function(err, user){
-        if(user != null){
-            return res.render('edit', user)
-        } 
-        else {
-            console.log(err)
-            return res.redirect('/')
-        }
-    });
-})
 // firstlogin
-router.post('/firstlogin/:username', (req, res) => {
+router.post('/firstlogin', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login')
     }
-    let us = req.params.username
-    User.updateOne({username: us},
-        {$set: {password: req.body.password, firstLogin: false} },
-         function(){  
-            return res.redirect('/')
-        });
+    let user = req.session.user
+    User.updateOne({username: user.username},
+        {$set: {password: req.body.password, firstLogin: false} }, function(){});
+    return res.redirect('/')
 })
 
-// edit
-router.post('/update/:username', (req, res) => {
+
+
+// changepassword
+router.get('/changepassword', (req, res) => {
+    res.render('changepassword')
+})
+
+router.post('/changepassword', (req, res) => {
     if (!req.session.user) {
         return res.redirect('/login')
     }
-    let us = req.params.username
-    User.updateOne({username: us},
-        {$set: {username: req.body.username, password: req.body.password, fullname: req.body.fullname} },
-         function(err,user){     
-            console.log(user)      
-        return res.redirect('/')
-    });
+    let user = req.session.user
+    if(user.password == req.body.password){
+        if(req.body.newpassword == req.body.passwordconfirm){
+            User.updateOne({username: user.username},
+                {$set: {password: req.body.newpassword}}, function(err, user){
+                    console.log('Đổi mật khẩu thành công') 
+                });
+        }
+        else return res.render('changepassword', {message : "Mật khẩu không trùng khớp"})
+    }
+    else return res.render('changepassword', {message : "Sai mật khẩu"})
+
+    return res.redirect('/')
+    
 })
 
 

@@ -8,16 +8,17 @@
           <button type="button" class="close" data-dismiss="modal" onclick="history.back()">&times;</button>
         </div>
           <!-- Modal body -->
-          <form method="post" action="/buycard/{{username}}">
+          <form method="post" action="/buycard">
           <div class="modal-body">
                   <div class="form-group">
-                    <label for="cardprice">Chọn mệnh giá thẻ </label>
+                    <label for="cardprice">Chọn mệnh giá  </label>
                      <select name="cardprice" id="cardprice">
                       <option value='10000'>10.000 VNĐ</option>
                       <option value='20000'>20.000 VNĐ</option>
                       <option value='50000'>50.000 VNĐ</option>
                       <option value='100000'>100.000 VNĐ</option>
                     </select>
+                    <br>
                     <label for="cardtype">Chọn nhà mạng </label>
                      <select name="cardtype" id="cardtype">
                       <option value='11111'>Viettel</option>

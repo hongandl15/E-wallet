@@ -1,12 +1,13 @@
 <body>
 
 <div class="container my-3">
-    <h4 class="my-5 text-primary text-center text-uppercase">Danh sách tài khoản đang chờ kích hoạt</h4>
+    <h4 class="my-5 text-primary text-center text-uppercase">Danh sách tài khoản{{type}}</h4>
     <table class="table table-striped border">
         <thead>
             <tr>
-                <th>username</th>
-                <th>email</th>    
+                <th>Username</th>
+                <th>Họ và tên</th>
+                <th>Email</th>    
                 <th>SĐT</th>
                 <th>Ngày sinh</th>
                 <th>Trạng thái</th>
@@ -15,11 +16,12 @@
         <tbody>
             {{#each users}}
             <tr>
-                <td><a href="/admin/{{username}}">{{username}}</a></td>
+                <td><a href="/admin/userprofile/{{username}}">{{username}}</a></td>
+                <th>{{fullname}}</th>
                 <td>{{email}}</td>
                 <td>{{phone}}</td>
                 <td>{{Birthdate}}</td>
-                <td>{{verified}}</td>
+                <td>{{status}}</td>
             </tr>
             {{/each}}
         </tbody>

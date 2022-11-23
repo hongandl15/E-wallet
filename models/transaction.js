@@ -7,7 +7,7 @@ var transactionSchema = mongoose.Schema({
     id: String,
     type: String,
     note: String,
-    date: Date,
+    date: String,
     status: String,
     verified: Boolean,
     value: String,
