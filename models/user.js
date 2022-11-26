@@ -16,6 +16,7 @@ var userSchema = mongoose.Schema({
     role: String,
     wrongpw: Number,
     unusuallogin: Number,
+    unusuallogintime: String,
     idcard: {
         photofrontName: String,
         photofrontPath: String,

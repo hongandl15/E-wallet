@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 
 var transactionSchema = mongoose.Schema({
     username: String,
+    receiver: String,
     id: String,
     type: String,
     note: String,
@@ -12,6 +13,8 @@ var transactionSchema = mongoose.Schema({
     verified: Boolean,
     value: String,
     card: Array,
+    creditcard: String,
+    cvv: String
 });
 
 var Transaction = mongoose.model('transaction', transactionSchema);

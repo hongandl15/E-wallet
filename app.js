@@ -7,38 +7,41 @@ const mongoose = require('mongoose')
 const User = require('./models/user.js')
 const wallet = require('./wallet.js')
 const login = require('./login.js')
+const register = require('./register.js')
 const admin = require('./admin.js')
-var formidable = require('formidable');
-var dataDir = __dirname + '/data';
-var PhotoDir = dataDir + '/photo';
-var fs = require('fs')
-fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
-fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
-
 
 mongoose.connect('mongodb://localhost:27017', function (err) {
-
-if (err) throw err;
-
-console.log('Successfully connected');
-
+    if (err) throw err;
+    console.log('Successfully connected');
 });
 
 User.find(function(err, users){
-    if(users.length) return;
+    if(users.length != 0) return;
     new User({
         username: "admin",
         password: "123456",
-        fullname: "Ân Nguyễn",
+        fullname: "Admin",
         phone: '0123456789',
-        email: 'hongandl15@gmail.com',
         Birthdate: '',
-        balance: '100000',
+        balance: '1000000',
         available: true,
         firstLogin: false,
-        verified: true,
+        status: 'verified',
         role: 'admin',
-        idcard: '',
+    }).save();
+
+    new User({
+        username: "hongan",
+        password: "123456",
+        fullname: "Ân Nguyễn",
+        phone: '9876543210',
+        email: 'hongandl15@gmail.com',
+        Birthdate: '',
+        balance: '0',
+        available: true,
+        firstLogin: false,
+        status: 'verified',
+        role: 'user',
     }).save();
 })
 
@@ -48,9 +51,9 @@ app.use(express.urlencoded())
 app.use(session({ secret: 'fafsdhalj' }))
 app.set('view engine', 'handlebars')
 app.use(express.static(__dirname + '/data'));
-app.use(require('body-parser')());
 
 app.use('/', login)
+app.use('/', register)
 app.use('/', wallet)
 app.use('/', admin)
 
