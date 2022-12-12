@@ -10,38 +10,35 @@ var fs = require('fs')
 fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
 fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
 
-// register
+// register - Chức năng đăng kí
 router.get('/register', (req, res) => {
-    res.render('./Account/register')
+    res.render('./Account/register',  {layout: null})
 })
 router.post('/register', (req, res) => {
     var form = new formidable.IncomingForm();
-    form.parse(req, function(err, fields, files){
+    form.parse(req, async function(err, fields, files){
             if(err) return res.redirect(303, '/404');
 
-            var photofront = files.photofront
-            var photoback = files.photoback
+            var photofrontName = fields.phone + 'IDCardFront' // Tạo tên cho ảnh CMND mặt trước SĐT + IDCardFront
+            var photobackName = fields.phone + 'IDCardBack'// Tạo tên cho ảnh CMND mặt sau SĐT + IDCardBack
 
-            var photofrontName = fields.phone + 'IDCardFront'
-            var photobackName = fields.phone + 'IDCardBack'
+            // Thiết lập nơi chứa file ảnh và 
+            var frontoldPath = files.photofront.filepath
+            var frontnewPath = PhotoDir + '/' + photofrontName + ".jpg" 
 
-            var frontoldPath = photofront.filepath
-            var frontnewPath = PhotoDir + '/' + photofrontName + ".jpg"
-
-            var backoldPath = photoback.filepath
+            var backoldPath = files.photoback.filepath
             var backnewPath = PhotoDir + '/' + photobackName + ".jpg"
-            fs.copyFile(frontoldPath, frontnewPath, function (err) { //đổi tên ảnh CMND mặt trước
+            fs.copyFile(frontoldPath, frontnewPath, function (err) { //Di chuyển file ảnh CMND mặt trước
+                if (err) throw err;
+            });
+            fs.copyFile(backoldPath, backnewPath, function (err) { //Di chuyển file ảnh CMND mặt sau
                 if (err) throw err;
             });
 
-            fs.copyFile(backoldPath, backnewPath, function (err) { //đổi tên ảnh CMND mặt sau
-                if (err) throw err;
-            });
+            var newusername = utils.generate_username(9) // Tạo username
+            var newpassword = utils.generate_password(6) // Tạo password
 
-            var newusername = utils.generate_username(9)
-            var newpassword = utils.generate_password(6)
-
-            // tạo user trong database
+            // Lưu vào database
             new User({
                 username: newusername,
                 password: newpassword,
@@ -51,20 +48,17 @@ router.post('/register', (req, res) => {
                 address: fields.address,
                 Birthdate: utils.getDate(fields.birthdate),
                 balance: 0,
-                available: true,
                 firstLogin: true,
-                status: 'unverified',
+                status: 'unverified', // Tài khoản mới tạo sẽ chưa được xác minh
                 role: 'user',
                 wrongpw: 0,
                 unusuallogin: 0,
-                unusuallogintime: utils.getTime(new Date),
                 idcard:{
                     photofrontName: photofrontName,
                     photofrontPath: frontnewPath,
                     photobackName: photobackName,
                     photobackPath: backnewPath,
                 } ,
-                available: true
             }).save();
 
             // Chức năng gửi email username và password
@@ -92,8 +86,7 @@ router.post('/register', (req, res) => {
                 from: 'EZB Wallet',
                 to: fields.email,
                 subject: 'Đăng kí thành công EZB Wallet',
-                // text: 'Cảm ơn bạn đã đăng kí. Username và mật khẩu của bạn là',
-                html: content //Nội dung html mình đã tạo trên kia :))
+                html: content //Nội dung html cho email
             }
             transporter.sendMail(mainOptions, function(err, info){
                 if (err) {
@@ -105,7 +98,7 @@ router.post('/register', (req, res) => {
                 }
             });
         });
-    req.session.message = 'Đăng kí thành công tài khoản và mật khẩu đã được gửi về email của bạn. Nếu không nhận được mail hãy kiểm tra thư mục spam'
+    req.session.success = 'Đăng kí thành công, tài khoản và mật khẩu đã được gửi về email của bạn. Nếu không nhận được mail hãy kiểm tra thư mục spam'
     return res.redirect('/')
 }) 
 

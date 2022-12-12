@@ -1,28 +1,16 @@
-    <style>
-        .row div {
-            margin-top: 16px;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-sm-6 col-md-5 col-lg-4">
-                <div class="card" class="w-100">
-                    <h2>Mua thẻ thành công</h2>
-                    <h6>Xem thông tin thẻ bên dưới</h6>
-                
-                    {{#each card}}
-                    <div class="card-body">                   
-                        <p class="card-text">Mã thẻ:<strong> {{cardcode}}</strong></p>
-                        <p class="card-text">Mệnh giá:<strong> {{cardprice}}VNĐ</strong></p>
-                    </div>
-                    {{/each}}
-                </div>
-                <p class="mt-3"><a href="#" onclick="history.back()" >Mua tiếp</a></p>
-                <p class="mt-3"><a href="/" >Quay lại trang chủ</a></p>
-            </div>
+<div class="col-sm-6">
+    <form>
+        <h1 class="text-primary"><i class="fas fa-check-circle" style="font-size:30px;"></i> Mua thẻ thành công</h1>
+        <h6>Xem thông tin thẻ bên dưới</h6>
+        {{#each card}}
+        <div class="card-body">
+            <p class="card-text">Mã thẻ:<strong> {{cardcode}}</strong></p>
+            <p class="card-text">Mệnh giá:<strong> {{cardprice}}VNĐ</strong></p>
         </div>
-    </div>
-</body>
+        {{/each}}
+        <div>
+            <a class="btn btn-primary" href="/">Trang chủ</a>
+            <a class="btn btn-primary" href="/buycard">Mua tiếp</a>
+        </div>
+    </form>
+</div>

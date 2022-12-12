@@ -1,26 +1,37 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css    ">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
 <div>
-    <div class="modal-dialog">
-      <div class="modal-content">
-      
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Điển email khôi phục mật khẩu</h4>
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-          <!-- Modal body -->
+
+  <div class="row justify-content-center">
+    <div class="col-md-6 h-full d-flex flex-wrap align-items-center" style="background-color:#58E1FF; border-radius: 30px;">
+      <img style="margin: auto;" src="/assets/onboarding.png" alt="">
+    </div>
+    <div class="col-md-6 h-full d-flex flex-wrap align-items-center justify-content-center" style="background-color:#ffffff; height: 920px">
+        <div class="p-5 mt-5 w-75">
+          <h1 class=""> <img src="/assets/user.png"></img>RECOVERY PASSWORD</h1>
+          <h5 class="mb-5" style="color:#58E1FF">Điển email khôi phục mật khẩu.</h5>
           <form method="post" action="/recovery">
-          <div class="modal-body">
                   <div class="form-group">
                       <input required class="form-control" type="email" placeholder="Nhập Email khôi phục" id="email" name="email">
                   </div>
                   <div class="form-group">
-                    <button class="btn btn-success mr-2">Gửi mã xác thực</button>
+                    <button style="background-color:#58E1FF; border:none; border-radius:10px" class="btn btn-success mr-2">Gửi mã xác thực</button>
                 </div>
-              </form>
-          </div>
-        
-        <!-- Modal footer -->
-          
-      </div>
+            </form>
+        </div>
     </div>
   </div>
+
+</body>
+</html>

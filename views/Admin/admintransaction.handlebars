@@ -12,6 +12,12 @@
                 <div class="card" class="w-100">
                     <div class="card-body">
                         <p class="card-text">Mã giao dịch: <strong>{{id}}</strong></p>
+                        <p class="card-text">User name thực hiện: <strong>{{username}}</strong></p>
+
+                        {{#if receiver}}
+                        <p class="card-text">Người nhận: <strong>{{receiver}}</strong></p>
+                        {{/if}}
+
                         <p class="card-text">Loại giao dịch: <strong>{{type}}</strong></p>
                         {{#if note}}
                         <p class="card-text">Ghi chú: <strong>{{note}}</strong></p>
@@ -19,7 +25,7 @@
                         <p class="card-text">Ngày thực hiện: <strong>{{date}}</strong></p>
                         <p class="card-text">Tổng số tiền: <strong>{{value}}</strong></p>
                         {{#if creditcard}}
-                        <p class="card-text">Mã thẻ tín dụng: <strong>{{creditcard}}</strong></p>
+                        <p class="card-text">Số thẻ tín dụng: <strong>{{creditcard}}</strong></p>
                         {{/if}}
                         <p class="card-text">Trạng thái: <strong>{{status}}</strong></p>
                         {{#if card}}

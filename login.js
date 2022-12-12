@@ -4,28 +4,40 @@ var router = express.Router();
 const User = require('./models/user.js')
 const utils = require('./utils.js')
 const nodemailer =  require('nodemailer');
+var formidable = require('formidable');
+var dataDir = __dirname + '/data';
+var PhotoDir = dataDir + '/photo';
+var fs = require('fs')
+fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
+fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
 
-// home
+// home - trang chủ
 router.get('/', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
     let us = req.session.user
-    let message = req.session.message
+    var success = req.session.success
+    var error = req.session.error
+    var warning = req.session.warning
+    req.session.success = null
+    req.session.error = null
+    req.session.warning = null
     User.findOne({username: us.username}, function(err, user){
         if(user != null){   
             req.session.user = user
-            if(user.role == "admin"){
+            if(req.session.user.firstLogin) 
+                return res.render('./Account/firstlogin') 
+            else if(user.role == "admin") // Kiểm tra role của tài khoản để render đúng giao diện
                 return res.render('./Admin/admin', {title: 'Quản trị viên', user}) 
-            }
-            return res.render('./Home/index', {title: 'Trang chủ', user , message: message})
-
+            return res.render('./Home/index', {title: 'Trang chủ', user , success: success, error: error, warning: warning})
         }
     }).lean()      
 })
 
-// login
+// login - chức năng đăng nhập
 router.get('/login', (req, res) => {
-    var message = req.session.message;
-    res.render('./Account/login', {message: message})
+    var error = req.session.message;
+    var success = req.session.success
+    return res.render('./Account/login', { layout: null, error: message, success: success })
 })
 
 router.post('/login', function(req, res){
@@ -35,33 +47,41 @@ router.post('/login', function(req, res){
         if(user != null){
             var wrongpassword = user.wrongpw
             var unusuallogin = user.unusuallogin
-            var time = user.unusuallogintime
-            if(user.unusuallogin == 1){ // Tạm khóa tài khoản khi sai mật khẩu 3 lần
-                if(time == utils.getTime(new Date))
-                    return res.render('./Account/login', {error: 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút'})
+            var blocktime = user.unusuallogintime
+            if (user.status == 'disabled') 
+            // Thông báo tài khoản bị vô hiệu hóa
+                return res.render('./Account/login', {layout: null, username: us, error: 'tài khoản này đã bị vô hiệu hóa, vui lòng liên hệ tổng đài 18001008'})
+
+            else if(user.unusuallogin == 1){
+                 // Thông báo tạm khóa tài khoản khi sai mật khẩu 3 lần
+                if(blocktime == utils.getTime(new Date))
+                    return res.render('./Account/login', {layout: null, username: us, error: 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút'})  
             }
-            else if (user.unusuallogin >=2)  // Khóa tài khoản khi sai mật khẩu quá nhiều lần
-                return res.render('./Account/login', {error: 'Tài khoản đã bị khóa do nhập sai mật khẩu nhiều lần, vui lòng liên hệ quản trị viên để được hỗ trợ'})
-                
-            if(pw == user.password){        
+
+            else if (user.status == 'blocked')  // Thông báo khóa tài khoản khi sai mật khẩu quá nhiều lần
+                return res.render('./Account/login', {layout: null, username: us, error: 'Tài khoản đã bị khóa vô thời hạn, vui lòng liên hệ quản trị viên để được hỗ trợ'})
+              
+            if(pw == user.password){       // Kiểm tra mật khẩu đúng hay không  
                 req.session.user = user
-                if(user.firstLogin== true){
-                    return res.render('./Account/firstlogin', user)
-                }
-                User.updateOne({username: us},
-                    {$set: {wrongpw: 0, unusuallogin: 0}}, function(err,user){}); 
+
+                if(user.firstLogin== true) // Check đăng nhập lần đầu
+                    return res.render('./Account/firstlogin', {layout: null})        
+                      
+                User.updateOne({username: us}, {$set: {wrongpw: 0, unusuallogin: 0}}, function(){}); // reset số lần sai mật khẩu và số lần đăng nhập bất thường sau khi đăng nhập thành công
                 return res.redirect('/')   
 
-            }else if (user.role != "admin") {
+            }else if (user.role != "admin") {   // Mật khẩu sai và tài khoản không phải admin thì +1 số lần sai mật khẩu
                 wrongpassword+=1
-                if(wrongpassword == 3 || wrongpassword == 6){
+                if(wrongpassword == 3 || wrongpassword == 6){ // lần sai thứ 3 hoặc thứ 6 liên tiếp thì +1 số lần đăng nhập bất thường
                     unusuallogin += 1
-                    var unusuallogintime = utils.getTime(new Date)
+                    if(unusuallogin== 2)
+                        var block = 'blocked'
+                    var unusuallogintime = utils.getTime(new Date) // Lưu thời gian đăng nhập nhập bất thường để phục vụ chức năng tạm khóa
                 }
-                User.updateOne({username: us}, {$set: {wrongpw: wrongpassword, unusuallogin: unusuallogin, unusuallogintime: unusuallogintime} },  function(err,user){});
+                User.updateOne({username: us}, {$set: {wrongpw: wrongpassword, unusuallogin: unusuallogin, unusuallogintime: unusuallogintime, status: block} },  function(){});
             }
 
-        return res.render('./Account/login', { layout: null, error: 'Sai mật khẩu', username: us })
+            return res.render('./Account/login', { layout: null, error: 'Sai mật khẩu', username: us})
             
         }
         else {
@@ -71,125 +91,22 @@ router.post('/login', function(req, res){
     });
 });
 
+// firstlogin - Đăng nhập lần đầu
+router.post('/firstlogin', (req, res) => {
+    if (!req.session.user) return res.redirect('/login')
+    let user = req.session.user
+    if(req.body.password == req.body.passwordconfirm){         // Kiểm tra mật khẩu trùng khớp 
+        User.updateOne({username: user.username}, {$set: {password: req.body.password, firstLogin: false}}, function(){}); // cập nhật lại firstLogin: false
+        req.session.success = 'Đăng nhập thành công, chào mừng đến với website'
+    }
+    return res.redirect('/')
+})
 
-// logout
+// logout - Chức năng đăng xuất
 router.get('/logout', function(req, res){
     req.session.destroy();
     res.redirect('/')
 })
 
-
-// details user
-router.get('/user', (req, res) => {
-    if (!req.session.user) return res.redirect('/login')
-    let user = req.session.user
-    return res.render('./Account/details', user)
-})
-
-// firstlogin
-router.post('/firstlogin', (req, res) => {
-    if (!req.session.user) return res.redirect('/login')
-    
-    let user = req.session.user
-    if(req.body.password == req.body.passwordconfirm){
-        User.updateOne({username: user.username}, {$set: {password: req.body.password, firstLogin: false}}, function(err, user){});
-        req.session.message = 'Đổi mật khẩu thành công'
-    }
-    return res.redirect('/')
-})
-
-// recovery
-router.get('/recovery', (req, res) => {
-    res.render('./Account/recovery')
-});
-
-router.post('/recovery', (req, res) => {
-    var recovery = utils.generate_password(5)
-    req.session.recovery = recovery
-    req.session.email = req.body.email
-    var transporter =  nodemailer.createTransport({ // config mail server
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: 'ezbwallet@gmail.com', //Tài khoản gmail 
-            pass: 'wnbohmfbxzqnjtqn' //Mật khẩu tài khoản gmail
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-    var content = `
-            <div style="padding: 10px; background-color: white;">
-                <h4 style="color: #0085ff">Email khôi phục mật khẩu</h4>
-                <span style="color: black">Đây là mã khôi phục mật khẩu của bạn</span>
-                <p style="color: black">username: ` + recovery + `</p>
-            </div>
-    `;
-    var mainOptions = { // thiết lập đối tượng, nội dung gửi mail
-        from: 'EZB Wallet',
-        to: req.body.email,
-        subject: 'Email khôi phục mật khẩu',
-        html: content //Nội dung html
-    }
-    transporter.sendMail(mainOptions, function(err, info){
-        if (err) {
-            console.log(err);
-            res.redirect('/');
-        } else {
-            console.log('Message sent: ' +  info.response);
-            res.redirect('/');
-        }
-    });
-    return res.render('./Account/recoverycode')
-});
-
-router.post('/recoverypassword', (req, res) => {
-    if(req.body.otp == req.session.recovery){
-        return res.render('./Account/recoverypassword')
-    }
-    else {
-        req.session.message = 'Sai mã xác thực'
-        res.render('./Account/recoverycode')
-    }
-});
-
-router.post('/successful', (req, res) => {
-    if(req.body.newpassword == req.body.passwordconfirm){
-        User.updateOne({email: req.session.email},
-            {$set: {password: req.body.newpassword}}, function(err, user){
-                console.log('khôi phục mật khẩu thành công')
-            });
-    }
-    else return res.render('./Account/changepassword', {message : "Mật khẩu không trùng khớp"})
-
-    return res.redirect('/')
-    
-});
-    
-
-
-// changepassword
-router.get('/changepassword', (req, res) => {
-    res.render('./Account/changepassword')
-})
-
-router.post('/changepassword', (req, res) => {
-    if (!req.session.user) return res.redirect('/login')
-    let user = req.session.user
-    if(user.password == req.body.password){
-        if(req.body.newpassword == req.body.passwordconfirm){
-            User.updateOne({username: user.username},
-                {$set: {password: req.body.newpassword}}, function(err, user){
-                    console.log('Đổi mật khẩu thành công') 
-                });
-        }
-        else return res.render('./Account/changepassword', {message : "Mật khẩu không trùng khớp"})
-    }
-    else return res.render('./Account/changepassword', {message : "Sai mật khẩu"})
-
-    return res.redirect('/')
-    
-})
 
 module.exports = router;

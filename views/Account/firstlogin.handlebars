@@ -12,15 +12,17 @@
           <div class="modal-body">
                   <div class="form-group">
                       <label for="password">Password</label>
-                      <input class="form-control" type="text" placeholder="Nhập Password" id="password" name="password">
+                      <input class="form-control" type="password" placeholder="Nhập Password" id="password" name="password">
                   </div>
                   <div class="form-group">
                       <label for="passwordconfirm">Confirm Password</label>
-                      <input class="form-control" type="text" placeholder="Nhập lại Password" id="passwordconfirm" name="passwordconfirm">
+                      <input class="form-control" type="password" placeholder="Nhập lại Password" id="passwordconfirm" name="passwordconfirm">
                   </div>
-                  {{!-- <div class="alert alert-danger">
-                      Vui lòng nhập đầy đủ thông tin
-                  </div> --}}
+                  {{#if error}}
+                  <div class="alert alert-danger">
+                     {{error}}
+                  </div>
+                  {{/if}}
                   <div class="form-group">
                     <button class="btn btn-success mr-2">Đổi mật khẩu</button>
                   {{!-- <button type="button" class="btn btn-dark" data-dismiss="modal" >Đóng</button> --}}

@@ -1,67 +1,31 @@
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-<script>
-  $('input.numberformat').keyup(function(event) {
-
-  // skip for arrow keys
-  if(event.which >= 37 && event.which <= 40) return;
-
-  // format number
-  $(this).val(function(index, value) {
-    return value
-    .replace(/\D/g, "")
-    .replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-    ;
-  });
-});
-</script>
-<div>
-    <div class="modal-dialog">
-      <div class="modal-content">
-      
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h4 class="modal-title">Nạp tiền vào tài khoản</h4>
-          <button type="button" class="close" data-dismiss="modal" onclick="history.back()">&times;</button>
-        </div>
-          <!-- Modal body -->
-          <form method="post" action="/deposit">
-          <div class="modal-body">
-                  <div class="form-group">
-                      <label for="cardnumber">Số thẻ  </label>
-                      <input class="form-control" type="number" placeholder="Nhập số thẻ" id="cardnumber" name="cardnumber">
-                  </div>
-                  <div class="form-group">
-                      <label for="expiredate">Ngày hết hạn</label>
-                      <input class="form-control" type="date" placeholder="Nhập ngày hết hạn"  id="expiredate" name="expiredate">
-                  </div>
-                  <div class="form-group">
-                      <label for="cvv">CVV</label>
-                      <input  class="form-control" type="number" placeholder="Nhập CVV" id="cvv" name="cvv">
-                  </div>
-                   <div class="form-group">
-                      <label for="money">Số tiền muốn nạp</label>
-                      <input  class="form-control numberformat" type="number" placeholder="Nhập số tiền muốn nạp" id="money" name="money">
-                  </div>
-                  {{!-- <div class="alert alert-danger">
-                      Vui lòng nhập đầy đủ thông tin
-                  </div> --}}
-                  {{#if message}}
-                  <div class="form-group">
-                    <div class="alert alert-danger alert-dismissible fade show">
-                      <button type="button" class="close" data-dismiss="alert">&times;</button>
-                      {{message}}
-                    </div>
-                  </div>
-                  {{/if}}
-                  <div class="form-group">
-                  <button class="btn btn-success mr-2">Nạp tiền</button>
-                  {{!-- <button type="button" class="btn btn-dark" data-dismiss="modal" >Đóng</button> --}}
-                </div>
-              </form>
-          </div>
-        
-        <!-- Modal footer -->
-          
+<div class="col-sm-6">
+  <form method="post" action="/deposit">
+    <h1 class="text-primary"><i class="fas fa-coins"></i></i> Nạp tiền vào tài khoản</h1>
+    <div class="form-group row">
+      <label for="cardnumber" class="col-sm-3 col-form-label"><strong>Số thẻ</strong></label>
+      <input class="form-control col-sm-5" type="number" placeholder="Nhập số thẻ" id="cardnumber" name="cardnumber">
+    </div>
+    <div class="form-group row">
+      <label for="expiredate" class="col-sm-3 col-form-label"><strong>Ngày hết hạn</strong></label>
+      <input class="form-control col-sm-5" type="date" placeholder="Nhập ngày hết hạn" id="expiredate" name="expiredate">
+    </div>
+    <div class="form-group row">
+      <label for="cvv" class="col-sm-3 col-form-label"><strong>CVV</strong></label>
+      <input class="form-control col-sm-5" type="number" placeholder="Nhập CVV" id="cvv" name="cvv">
+    </div>
+    <div class="form-group row">
+      <label for="money" class="col-sm-3 col-form-label"><strong>Số tiền muốn nạp</strong></label>
+      <input class="form-control col-sm-5" type="number" placeholder="Nhập số tiền muốn nạp" id="numberformat"
+        name="money">
+    </div>
+    {{#if error}}
+    <div class="form-group row">
+      <div class="alert alert-danger alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{error}}
       </div>
     </div>
-  </div>
+    {{/if}}
+    <button class="btn btn-primary">Nạp tiền</button>
+  </form>
+</div>

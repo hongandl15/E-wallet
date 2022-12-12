@@ -8,29 +8,41 @@ const nodemailer =  require('nodemailer');
 //deposit
 router.get('/deposit', (req, res,) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status != 'verified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    } 
     let user = req.session.user
     return res.render('./Wallet/deposit', user)
 })
 
 router.post('/deposit', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status != 'verified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    }  
     let cardnumber = req.body.cardnumber
     let cvv = req.body.cvv
     let user = req.session.user
     let expiredate = utils.getDate(req.body.expiredate)
     let date = new Date()
     if (cardnumber == 333333 && cvv == 577 && expiredate == '12/12/2022'){
-        req.session.message = "Thẻ hết tiền"
-        return res.render('./Wallet/deposit', {message: req.session.message})
+        return res.render('./Wallet/deposit', {error: 'Thẻ hết tiền'})
     } 
     else if ((cardnumber == 111111 && cvv == 411 && expiredate == '10/10/2022') || (cardnumber == 222222 && cvv == 443 && expiredate == '11/11/2022')){
-        if(cardnumber == 222222 && parseInt(req.body.money) > 1000000){
-            req.session.message = 'Thẻ này chỉ được nạp tối đa 1.000.000/1 lần'
-            return res.render('./Wallet/deposit', {message: req.session.message})
-        }
+        if(cardnumber == 222222 && parseInt(req.body.money) > 1000000)
+            return res.render('./Wallet/deposit', {error: 'Thẻ này chỉ được nạp tối đa 1.000.000/1 lần'})
+        
         userbalance = parseInt(user.balance) + parseInt(req.body.money)
         User.updateOne({username: user.username}, {$set: {balance: userbalance}}, function(){});
-        req.session.message = 'Nạp tiền thành công'
+        req.session.success = 'Nạp tiền thành công'
         new Transaction({
             username: user.username,
             id: utils.generate_username(6),
@@ -41,9 +53,8 @@ router.post('/deposit', (req, res) => {
             value: req.body.money,
         }).save();
     }else{
-        req.session.message = "Sai thông tin thẻ";
         console.log("Sai thông tin thẻ")
-        return res.render('./Wallet/deposit', {message: req.session.message})
+        return res.render('./Wallet/deposit', {error: 'Sai thông tin thẻ'})
     }
     return res.redirect('/')
 });
@@ -51,13 +62,26 @@ router.post('/deposit', (req, res) => {
 // withdraw
 router.get('/withdraw', (req, res) => {
     if (!req.session.user) return res.redirect('/login') 
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status != 'verified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    }  
     let user = req.session.user
     return res.render('./Wallet/withdraw', user)
 })
 
 router.post('/withdraw', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
-
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status == 'unverified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    } 
     let cardnumber = req.body.cardnumber
     let cvv = req.body.cvv
     let user = req.session.user
@@ -71,7 +95,7 @@ router.post('/withdraw', (req, res) => {
                     userbalance = parseInt(user.balance) - parseInt(req.body.money) - (parseInt(req.body.money) * 5 / 100)
                     User.updateOne({username: user.username},
                         {$set: {balance: userbalance} },function(){});
-                    req.session.message = 'Rút tiền thành công'   
+                    req.session.success = 'Rút tiền thành công'   
                     new Transaction({
                         username: us,
                         id: utils.generate_username(6),
@@ -84,7 +108,7 @@ router.post('/withdraw', (req, res) => {
                         value: req.body.money,
                     }).save(); 
                 }else {
-                    req.session.message = 'Rút tiền trên 5.000.000đ phải chờ phê duyệt'   
+                    req.session.warning = 'Rút tiền trên 5.000.000đ phải chờ phê duyệt'   
                     new Transaction({
                         username: us,
                         id: utils.generate_username(6),
@@ -99,19 +123,16 @@ router.post('/withdraw', (req, res) => {
                 }
             }else{
                 console.log('Số dư không đủ')
-                req.session.message = 'Số dư không đủ'
-                return res.render('./Wallet/withdraw', {message: req.session.message})
+                return res.render('./Wallet/withdraw', {error: 'Số dư không đủ'})
             }      
         }else{
             console.log('Số tiền rút phải là bội số của 50')
-            req.session.message = 'Số tiền rút phải là bội số của 50'
-            return res.render('./Wallet/withdraw', {message: req.session.message})
+            return res.render('./Wallet/withdraw', {error:'Số tiền rút phải là bội số của 50'})
         }
     }
     else{
         console.log('Sai thông tin thẻ')
-        req.session.message = 'Sai thông tin thẻ'
-        return res.render('./Wallet/withdraw', {message: req.session.message})
+        return res.render('./Wallet/withdraw', {error: 'Sai thông tin thẻ'})
     }
     return res.redirect('/')
 })
@@ -119,6 +140,13 @@ router.post('/withdraw', (req, res) => {
 // transfer
 router.get('/transfer', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status != 'verified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    } 
     let user = req.session.user
     User.findOne({username: user.username}, function(err, user){
         if(user != null){
@@ -134,6 +162,13 @@ router.get('/transfer', (req, res) => {
 
 router.post('/transfer', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status != 'verified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    }  
     let note = req.body.note
     let money = req.body.money
     let user = req.session.user
@@ -182,7 +217,7 @@ router.post('/transfer', (req, res) => {
                     from: 'EZB Wallet',
                     to: user.email,
                     subject: 'Giao dịch thành công',
-                    html: content2 //Nội dung html mình đã tạo trên kia :))
+                    html: content2 //Nội dung html 
                 }
 
                 transporter.sendMail(mainOptions2, function(err, info){
@@ -218,7 +253,7 @@ router.post('/transfer', (req, res) => {
                     console.log('Message sent: ' +  info.response);
                 }
             });
-
+            req.session.success = 'Chuyển tiền thành công'  
             new Transaction({
                 username: user.username,
                 receiver: req.body.phone,
@@ -233,6 +268,7 @@ router.post('/transfer', (req, res) => {
 
             
         }else 
+            req.session.warning = 'Chuyển tiền trên 5.000.000đ phải chờ phê duyệt'   
             new Transaction({
                 username: user.username,
                 receiver: req.body.phone,
@@ -247,8 +283,8 @@ router.post('/transfer', (req, res) => {
 
     }else{
         console.log('Số dư không đủ')
-        req.session.message = 'Số dư không đủ'
-        return res.render('./Wallet/transfer', {message: req.session.message})
+        req.session.error = 'Số dư không đủ'
+        return res.render('./Wallet/transfer', {error: req.session.error})
     } 
                     
     return res.redirect('/')
@@ -258,14 +294,27 @@ router.post('/transfer', (req, res) => {
 // buycard
 router.get('/buycard', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status == 'unverified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    } 
     let user = req.session.user
     return res.render('./Wallet/buycard', user)
 })
 
 router.post('/buycard', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login')
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
     }
+    else if(req.session.user.status == 'unverified'){
+        req.session.error = 'chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    }  
+    
     let user = req.session.user
     let us = user.username
     var card = []
@@ -296,8 +345,8 @@ router.post('/buycard', (req, res) => {
                     }
                     else{ 
                         console.log('Số dư không đủ')
-                        req.session.message = 'Số dư không đủ'
-                        return res.render('./Wallet/buycard', {message: req.session.message})
+                        req.session.error = 'Số dư không đủ'
+                        return res.render('./Wallet/buycard', {error: req.session.error})
                     }        
                 } 
             });
@@ -308,6 +357,13 @@ router.post('/buycard', (req, res) => {
 // history
 router.get('/history', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status != 'verified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    } 
     let user = req.session.user
     Transaction.find({username: user.username}, function(err, trans){
         if(trans != null){
@@ -324,6 +380,13 @@ router.get('/history', (req, res) => {
 // transaction detail
 router.get('/transaction/:id', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin){ 
+        return res.render('./Account/firstlogin') 
+    }
+    else if(req.session.user.status == 'unverified'){
+        req.session.error = 'Chức năng này chỉ dành cho tài khoản đã được xác minh'
+        return res.redirect('/')
+    } 
     let id = req.params.id
     Transaction.findOne({id: id}, function(err, trans){
         if(trans != null){

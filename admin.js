@@ -2,14 +2,15 @@ const express = require('express')
 var router = express.Router();
 const Transaction = require('./models/Transaction.js')
 const User = require('./models/user.js')
+const nodemailer =  require('nodemailer');
 
 // Router admin
 
 //xem user
 router.get('/admin/users/:type', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login')
-    }
+    if (!req.session.user)  return res.redirect('/login')
+    else if(req.session.user.role != 'admin') return res.redirect('/')
+    
     var type = req.params.type
     User.find({status: type, role: 'user'}, function(err, users){
         if(users != null){
@@ -22,9 +23,8 @@ router.get('/admin/users/:type', (req, res) => {
 })
 
 router.get('/admin/userprofile/:username', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login')
-    }
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.role != 'admin') return res.redirect('/')
     var us = req.params.username
     User.findOne({username: us}, function(err, user){
         if(user != null){
@@ -50,14 +50,14 @@ router.get('/admin/userprofile/:username', (req, res) => {
         }
     }).lean();
 })
-
+// Mở khóa / Khóa/ xác minh/ Vô hiệu hóa/ tài khoản
 router.post('/admin/userprofile/:username/:status', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login')
-    }
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.role != 'admin') return res.redirect('/')
+    
     var us = req.params.username
         User.updateOne({username: us},
-            {$set: {status: req.params.status}}, function(err, user){
+            {$set: {status: req.params.status, wrongpw: 0, unusuallogin: 0}, }, function(err, user){
                 console.log(req.params.status) 
             });
     return res.redirect('/admin/userprofile/'+ us.username)
@@ -65,10 +65,10 @@ router.post('/admin/userprofile/:username/:status', (req, res) => {
 
 //xem danh sách transactions
 router.get('/admin/transactions', (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login')
-    }
-    Transaction.find({}, function(err, trans){
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.role != 'admin') return res.redirect('/')
+    
+    Transaction.find({status: 'Chờ phê duyệt'}, function(err, trans){
         if(trans != null){ 
             return res.render('./Admin/adminlisttrans', {trans: trans})
         } 
@@ -81,8 +81,8 @@ router.get('/admin/transactions', (req, res) => {
 //xem chi tiết transactions
 router.get('/admin/transaction/:id', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.role != 'admin') return res.redirect('/')
     let id = req.params.id
-    // var verify = 'Chờ phê'
     Transaction.findOne({id: id}, function(err, trans){
         if(trans != null){
             console.log(trans)
@@ -102,9 +102,25 @@ router.get('/admin/transaction/:id', (req, res) => {
     }).lean();
 })
 
+// Phê duyệt giao dịch chuyển tiền
 router.post('/admin/transaction/:id/verifytransfer', (req, res) => {
-    if (!req.session.user || req.session.user.role == 'user') return res.redirect('/login')
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.role != 'admin') return res.redirect('/')
+
     let id = req.params.id
+
+    var transporter =  nodemailer.createTransport({ // config mail server
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'ezbwallet@gmail.com', //Tài khoản gmail 
+            pass: 'wnbohmfbxzqnjtqn' //Mật khẩu tài khoản gmail
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
     Transaction.findOne({id: id}, function(err, trans){
         if(trans != null){
             User.findOne({username: trans.username}, function(err, user){
@@ -112,18 +128,64 @@ router.post('/admin/transaction/:id/verifytransfer', (req, res) => {
                     senderbalance = parseInt(user.balance) - parseInt(trans.value) -  (parseInt(trans.value) * 5 / 100)
                     console.log('sender balance ' + senderbalance)
                     User.updateOne({username: trans.username}, {$set: {balance: senderbalance}}, function(){});
+                    var content = `
+                    <div style="padding: 10px; background-color: white;">
+                        <h4 style="color: #0085ff">Giao dịch thành công</h4>
+                        <p style="color: black">Bạn vừa chuyển số tiền ` + parseInt(trans.value) + ` cho SĐT: `+ trans.receiver +`</p>
+                        <p style="color: black">Số dư hiện tại của bạn là ` + senderbalance + `</p>
+                    </div>
+                    `;
+        
+                    var mainOptions = { 
+                        from: 'EZB Wallet',
+                        to: user.email,
+                        subject: 'Giao dịch thành công',
+                        html: content //Nội dung html mình đã tạo trên kia :))
+                    }
+        
+                    
+                    transporter.sendMail(mainOptions, function(err, info){
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log('Message sent: ' +  info.response);
+                        }
+                    });
                 } 
                 else { 
                     Transaction.updateOne({id: id}, {$set: {status: 'Thất bại'}}, function(){});
-                    req.session.message = 'Giao dịch thất bại do tài khoản gửi tiền không đủ số dư'
+                    req.session.error = 'Giao dịch thất bại do tài khoản gửi tiền không đủ số dư'
                     return res.redirect('/')
                 }
             }).lean();
+
             User.findOne({phone: trans.receiver}, function(err, user){
                 if(user != null){
                     receiverbalance = parseInt(user.balance) + parseInt(trans.value)
                     console.log('receiver balance ' + receiverbalance)
                     User.updateOne({phone: trans.receiver}, {$set: {balance: receiverbalance}}, function(){});
+                    
+                    var content2 = `
+                    <div style="padding: 10px; background-color: white;">
+                        <h4 style="color: #0085ff">Giao dịch thành công</h4>
+                        <p style="color: black">Bạn vừa nhận được số tiền ` + parseInt(trans.value) + ` từ: `+ trans.username +`</p>
+                        <p style="color: black">Số dư hiện tại của bạn là ` + receiverbalance + `</p>
+                    </div>
+                    `;
+                    var mainOptions2 = { 
+                        from: 'EZB Wallet',
+                        to: user.email,
+                        subject: 'Giao dịch thành công',
+                        html: content2 //Nội dung html 
+                    }
+
+                    transporter.sendMail(mainOptions2, function(err, info){
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            console.log('Message sent: ' +  info.response);
+                        }
+                    });
                 } 
                 else {  
                     return res.redirect('/')
@@ -139,6 +201,7 @@ router.post('/admin/transaction/:id/verifytransfer', (req, res) => {
     return res.redirect('/')
 })
 
+// phê duyệt giao dịch rút tiền
 router.post('/admin/transaction/:id/verifywithdraw', (req, res) => {
     if (!req.session.user || req.session.user.role == 'user') return res.redirect('/login')
     let id = req.params.id
@@ -148,6 +211,7 @@ router.post('/admin/transaction/:id/verifywithdraw', (req, res) => {
                 if(user != null && parseInt(user.balance) >= (parseInt(trans.value) + parseInt(trans.value) * 5 / 100) ){
                     balance = user.balance - parseInt(trans.value) - (parseInt(trans.value) * 5 / 100)
                     User.updateOne({username: trans.username}, {$set: {balance: balance}}, function(){});
+                    Transaction.updateOne({id: id}, {$set: {status: 'Thành công'}}, function(){});
                 } 
                 else {
                     Transaction.updateOne({id: id}, {$set: {status: 'Thất bại'}}, function(){});

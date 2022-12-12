@@ -4,7 +4,7 @@
     <a class="btn btn-success btn-sm my-4" href="/logout">Logout</a>
     {{#if user}}
         <h2>Xin chào <strong>{{user.fullname}}</strong></h2>
-        <h4>Số dư tài khoản <a id ='money'><a></h4>
+        <h4>Số dư tài khoản <a id ='money'>{{user.balance}}<a></h4>
     <a class="btn btn-success btn-sm my-4" href="/user">Thông tin tài khoản</a>
     <a class="btn btn-success btn-sm my-4" href="/deposit">Nạp tiền</a>
     <a class="btn btn-success btn-sm my-4" href="/withdraw">Rút tiền</a>
@@ -13,24 +13,31 @@
     <a class="btn btn-success btn-sm my-4" href="/history">Lịch sử giao dịch</a>
     {{/if}}
 
-    {{#if message}}
+    {{#if error}}
     <div class="form-group">
-        <div class="alert alert-success alert-dismissible fade show">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{message}}
+        <div id="error" class="alert alert-danger alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{error}}
         </div>
     </div>
     {{/if}}
 
-    {{!-- <div class="alert alert-danger">
-        Vui lòng nhập đầy đủ thông tin
-    </div> --}}
+    {{#if success}}
+    <div class="form-group">
+        <div id="success" class="alert alert-success alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{success}}
+        </div>
+    </div>
+    {{/if}}
 
-    <script>
-        const formatter = new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        });
-        document.getElementById('money').innerHTML = formatter.format({{user.balance}})
-    </script>
+    {{#if warning}}
+    <div class="form-group">
+        <div id="warning" class="alert alert-warning alert-dismissible fade show">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{warning}}
+        </div>
+    </div>
+    {{/if}}
+
 </div>
