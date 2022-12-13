@@ -149,7 +149,9 @@ input {
 .fa-user-check,
 .fa-unlock,
 .fa-people-arrows {
-  font-size: 50px;
+  width: 50px;
+  margin: 20px;
+  font-size: 40px;
   color: #51cbff;
 }
 

@@ -17,20 +17,26 @@
 <body>
   <!-- Top Nav Bar -->
   <nav class="top-nav navbar navbar-expand-lg navbar-light mb-5">
-    <img src="/assets/logo.png" href="#">
+    <a href="/"><img src="/assets/logo.png" ></a>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
           <a class="nav-link" href="/">Trang chủ</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/deposit">Nạp tiền</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/withdraw">Rút tiền</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/transfer">Chuyển tiền</a>
+              <li class="nav-item dropdown" >
+          <a class="nav-link"id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Dịch vụ
+          </a>
+          <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+            <a class="dropdown-item" href="/deposit">Nạp tiền</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/withdraw">Rút tiền</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/transfer">Chuyển tiền</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="/buycard">Mua card điện thoại</a>
+            <div class="dropdown-divider"></div>
+          </div>
         </li>
          <li class="nav-item">
           <a class="nav-link" href="/history">Lịch sử giao dịch</a>
