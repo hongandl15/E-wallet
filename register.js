@@ -12,7 +12,7 @@ fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
 
 // register - Chức năng đăng kí
 router.get('/register', (req, res) => {
-    res.render('./Account/register',  {layout: null})
+    res.render('./Account/register',  {layout: 'main-login', title: 'Đăng kí'})
 })
 router.post('/register', (req, res) => {
     var form = new formidable.IncomingForm();
@@ -98,7 +98,7 @@ router.post('/register', (req, res) => {
                 }
             });
         });
-    req.session.success = 'Đăng kí thành công, tài khoản và mật khẩu đã được gửi về email của bạn. Nếu không nhận được mail hãy kiểm tra thư mục spam'
+    req.session.loginsuccess = 'Đăng kí thành công, tài khoản và mật khẩu đã được gửi về email của bạn. Nếu không nhận được mail hãy kiểm tra thư mục spam'
     return res.redirect('/')
 }) 
 

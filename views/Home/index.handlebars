@@ -1,18 +1,6 @@
-<div class="container my-3">
-    <h4 class="my-5 text-primary text-center text-uppercase">Ví điện tử</h4>
-
-    <a class="btn btn-success btn-sm my-4" href="/logout">Logout</a>
-    {{#if user}}
-        <h2>Xin chào <strong>{{user.fullname}}</strong></h2>
-        <h4>Số dư tài khoản <a id ='money'>{{user.balance}}<a></h4>
-    <a class="btn btn-success btn-sm my-4" href="/user">Thông tin tài khoản</a>
-    <a class="btn btn-success btn-sm my-4" href="/deposit">Nạp tiền</a>
-    <a class="btn btn-success btn-sm my-4" href="/withdraw">Rút tiền</a>
-    <a class="btn btn-success btn-sm my-4" href="/transfer">Chuyển tiền</a>
-    <a class="btn btn-success btn-sm my-4" href="/buycard">Mua thẻ điện thoại</a>
-    <a class="btn btn-success btn-sm my-4" href="/history">Lịch sử giao dịch</a>
-    {{/if}}
-
+<div class="col-sm-6">
+    <h2 class="text-center">Xin chào <strong>{{user.fullname}}</strong></h2><br>
+    <h4 class="text-center">Số dư tài khoản <a id ="money">{{user.balance}}<a></h4>
     {{#if error}}
     <div class="form-group">
         <div id="error" class="alert alert-danger alert-dismissible fade show">
@@ -39,5 +27,33 @@
         </div>
     </div>
     {{/if}}
-
+    <div class="d-flex flex-wrap justify-content-center">
+        {{#if user}}
+        <a class="m-6 menu-title" href="/deposit" style="text-decoration: none">
+            <div>
+                <img src="./assets/deposit.png" alt="">
+                <div>Nạp tiền</div>
+            </div>
+        </a>
+        <a class="m-6 menu-title" href="/withdraw">
+            <div>
+                <img src="./assets/withdraw.png" alt="">
+                <div >Rút tiền</div>
+            </div>
+        </a>
+        <a class="m-6 menu-title" href="/transfer">
+            <div>
+                <img src="./assets/transfer.png" alt="">
+                <div>Chuyển tiền</div>
+            </div>
+        </a>
+        <a class="m-6 menu-title" href="/buycard">
+            <div>
+                <img src="./assets/buycard.png" alt="">
+                <div>Mua thẻ điện thoại</div>
+            </div>
+        </a>
+        {{/if}}
+    </div>
 </div>
+

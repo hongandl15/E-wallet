@@ -1,31 +1,39 @@
-<body>
-
-<div class="container my-3">
-    <h4 class="my-5 text-primary text-center text-uppercase">Danh sách tài khoản{{type}}</h4>
-    <table class="table table-striped border">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Họ và tên</th>
-                <th>Email</th>    
-                <th>SĐT</th>
-                <th>Ngày sinh</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each users}}
-            <tr>
-                <td><a href="/admin/userprofile/{{username}}">{{username}}</a></td>
-                <th>{{fullname}}</th>
-                <td>{{email}}</td>
-                <td>{{phone}}</td>
-                <td>{{Birthdate}}</td>
-                <td>{{status}}</td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-    <p>Tổng số user: <strong class="text-danger">5</strong></p>
+<div id="body__container">
+  <div class="p-10 bg-surface-secondary">
+    <div class="container-fluid mt-8">
+      <div class="card">
+        <div class="card-header">
+          <h2>Danh sách tài khoản {{type}}</h2>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped border">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Username</th>
+                <th scope="col">Họ và tên</th>
+                <th scope="col">Email</th>
+                <th scope="col">SĐT</th>
+                <th scope="col">Ngày sinh</th>
+                <th scope="col">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each users}}
+                <tr>
+                  <td><a
+                      href="/admin/userprofile/{{username}}"
+                    >{{username}}</a></td>
+                  <td>{{fullname}}</td>
+                  <td>{{email}}</td>
+                  <td>{{phone}}</td>
+                  <td>{{Birthdate}}</td>
+                  <td>{{status}}</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-</body>

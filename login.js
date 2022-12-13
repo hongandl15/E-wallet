@@ -25,9 +25,9 @@ router.get('/', (req, res) => {
         if(user != null){   
             req.session.user = user
             if(req.session.user.firstLogin) 
-                return res.render('./Account/firstlogin') 
+                return res.render('./Account/firstlogin', {layout: 'main-login'}) 
             else if(user.role == "admin") // Kiểm tra role của tài khoản để render đúng giao diện
-                return res.render('./Admin/admin', {title: 'Quản trị viên', user}) 
+                return res.render('./Admin/admin', {layout:'main-admin',title: 'Quản trị viên', user, success: success, error: error}) 
             return res.render('./Home/index', {title: 'Trang chủ', user , success: success, error: error, warning: warning})
         }
     }).lean()      
@@ -35,9 +35,11 @@ router.get('/', (req, res) => {
 
 // login - chức năng đăng nhập
 router.get('/login', (req, res) => {
-    var error = req.session.message;
-    var success = req.session.success
-    return res.render('./Account/login', { layout: null, error: message, success: success })
+    var error = req.session.loginerror;
+    var success = req.session.loginsuccess
+    req.session.loginerror = null
+    req.session.loginsuccess = null
+    return res.render('./Account/login', {layout: 'main-login', title: 'Đăng nhập', error: error, success: success })
 })
 
 router.post('/login', function(req, res){
@@ -48,25 +50,25 @@ router.post('/login', function(req, res){
             var wrongpassword = user.wrongpw
             var unusuallogin = user.unusuallogin
             var blocktime = user.unusuallogintime
-            if (user.status == 'disabled') 
-            // Thông báo tài khoản bị vô hiệu hóa
-                return res.render('./Account/login', {layout: null, username: us, error: 'tài khoản này đã bị vô hiệu hóa, vui lòng liên hệ tổng đài 18001008'})
-
-            else if(user.unusuallogin == 1){
-                 // Thông báo tạm khóa tài khoản khi sai mật khẩu 3 lần
-                if(blocktime == utils.getTime(new Date))
-                    return res.render('./Account/login', {layout: null, username: us, error: 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút'})  
+            if (user.status == 'disabled') {
+                // Thông báo tài khoản bị vô hiệu hóa
+                req.session.loginerror = 'tài khoản này đã bị vô hiệu hóa, vui lòng liên hệ tổng đài 18001008';
+                return res.redirect("/login")
             }
-
-            else if (user.status == 'blocked')  // Thông báo khóa tài khoản khi sai mật khẩu quá nhiều lần
-                return res.render('./Account/login', {layout: null, username: us, error: 'Tài khoản đã bị khóa vô thời hạn, vui lòng liên hệ quản trị viên để được hỗ trợ'})
+            else if(user.unusuallogin == 1){// Thông báo tạm khóa tài khoản khi sai mật khẩu 3 lần
+                if(blocktime == utils.getTime(new Date)){
+                    req.session.loginerror = 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút';
+                    return res.redirect("/login")
+                }
+            }
+            else if (user.status == 'blocked'){ // Thông báo khóa tài khoản khi sai mật khẩu quá nhiều lần
+                req.session.loginerror = 'Tài khoản đã bị khóa vô thời hạn, vui lòng liên hệ quản trị viên để được hỗ trợ';
+                return res.redirect("/login")
+            }  
               
             if(pw == user.password){       // Kiểm tra mật khẩu đúng hay không  
-                req.session.user = user
-
-                if(user.firstLogin== true) // Check đăng nhập lần đầu
-                    return res.render('./Account/firstlogin', {layout: null})        
-                      
+                req.session.user = user                
+                req.session.success = 'Đăng nhập thành công, chào mừng đến với website'      
                 User.updateOne({username: us}, {$set: {wrongpw: 0, unusuallogin: 0}}, function(){}); // reset số lần sai mật khẩu và số lần đăng nhập bất thường sau khi đăng nhập thành công
                 return res.redirect('/')   
 
@@ -80,13 +82,12 @@ router.post('/login', function(req, res){
                 }
                 User.updateOne({username: us}, {$set: {wrongpw: wrongpassword, unusuallogin: unusuallogin, unusuallogintime: unusuallogintime, status: block} },  function(){});
             }
-
-            return res.render('./Account/login', { layout: null, error: 'Sai mật khẩu', username: us})
-            
+            req.session.loginerror = 'Sai mật khẩu'
+            return res.redirect("/login")
         }
         else {
-            console.log(err)
-            return res.render('./Account/login', { layout: null, error: 'Sai thông tin đăng nhập' })
+            req.session.loginerror = 'Sai thông tin đăng nhập'
+            return res.redirect("/login")
         }
     });
 });

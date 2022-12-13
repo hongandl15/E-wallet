@@ -1,67 +1,45 @@
- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css    ">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</head>
-
- <div class="row justify-content-center">
-    <div class="col-md-6 h-full d-flex flex-wrap align-items-center" style="background-color:#58E1FF; border-radius: 30px;">
-      <img style="margin: auto;" src="/assets/onboarding.png" alt="">
-    </div>
-    <div class="col-md-6 h-full d-flex flex-wrap align-items-center justify-content-center" style="background-color:#ffffff; height: 920px; box-sizing: border-box">
-        <div class="p-4 mt-5 w-75">
-          <h1 class=""> <img src="/assets/user.png"></img>USER REGISTER</h1>
-          <h5 class="mb-3" style="color:#58E1FF">Register your account.</h5>
-                <form class="mt-3" role="form" enctype="multipart/form-data" method="post">
-                    <div class="form-group">
-                        <label for="fullname">Họ tên</label>
-                        <input class="form-control" type="text" placeholder="Nhập tên người dùng" id="fullname" name="fullname" value="{{fullname}}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Số điện thoại</label>
-                        <input class="form-control" type="phone" placeholder="Nhập SĐT" id="phone" name="phone" value="{{phone}}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input class="form-control" type="email" placeholder="Nhập email" id="email" name="email"  value="{{email}}"required>
-                    </div>
-                    <div class="form-group">
-                        <label for="birthdate">Ngày sinh</label>
-                        <input class="form-control" type="date" placeholder="Ngày sinh" value="{{birthdate}}" id="birthdate" name="birthdate"  required>
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Địa chỉ</label>
-                        <input class="form-control" type="String" placeholder="Địa chỉ" id="address" name="address" value="{{address}}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="photofront">Ảnh CMND mặt trước</label>
-                        <input type="file" class="form-control pb-5"  accept="image/*" id="photofront" name="photofront">
-                    </div>
-                    <div class="form-group">
-                        <label for="photoback">Ảnh CMND mặt sau</label>
-                        <input type="file" class="form-control pb-5"  accept="image/*" id="photoback" name="photoback">
-                    </div>
-                    {{#if err}}
-                    <div class="alert alert-danger">
-                        {{err}}
-                    </div>
-                    {{/if}}
-                    <div class="form-group">
-                        <button style="background-color:#58E1FF; border:none; border-radius:10px" class="btn btn-success w-100" type="submit">Register</button>
-                    </div>
-                </form>
+<div class="mt-4 w-75">
+    <h1> <img src="/assets/user.png"></img>USER REGISTER</h1>
+    <h5 style="color:#58E1FF">Register your account.</h5>
+    <form role="form" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+            <label for="fullname">Họ tên</label>
+            <input class="form-control" type="text" placeholder="Nhập tên người dùng" id="fullname" name="fullname" value="{{fullname}}" required>
         </div>
-    </div>
-  </div>
+        <div class="form-group">
+            <label for="phone">Số điện thoại</label>
+            <input class="form-control" type="phone" placeholder="Nhập SĐT" id="phone" name="phone" value="{{phone}}" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input class="form-control" type="email" placeholder="Nhập email" id="email" name="email"  value="{{email}}"required>
+        </div>
+        <div class="form-group">
+            <label for="birthdate">Ngày sinh</label>
+            <input class="form-control" type="date" placeholder="Ngày sinh" value="{{birthdate}}" id="birthdate" name="birthdate"  required>
+        </div>
+        <div class="form-group">
+            <label for="address">Địa chỉ</label>
+            <input class="form-control" type="String" placeholder="Địa chỉ" id="address" name="address" value="{{address}}" required>
+        </div>
+        <div class="form-group">
+            <label for="photofront">Ảnh CMND mặt trước</label>
+            <input type="file" class="form-control pb-5"  accept="image/*" id="photofront" name="photofront">
+        </div>
+        <div class="form-group">
+            <label for="photoback">Ảnh CMND mặt sau</label>
+            <input type="file" class="form-control pb-5"  accept="image/*" id="photoback" name="photoback">
+        </div>
+        {{#if err}}
+        <div class="alert alert-danger">
+            {{err}}
+        </div>
+        {{/if}}
+        <div class="form-group">
+            <button style="background-color:#58E1FF; border:none; border-radius:10px" class="btn btn-success w-100" type="submit">Register</button>
+        </div>
+    </form>
+    <a href="/">Quay lại trang login</a>
+</div>
 
-</body>
 
-</html>

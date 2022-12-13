@@ -2,6 +2,7 @@ const express = require('express')
 const hbs = require('express-handlebars')
 const session = require('express-session')
 const app = express()
+var path = require('path')
 const port = 8080
 const mongoose = require('mongoose')
 const User = require('./models/user.js')
@@ -35,13 +36,20 @@ User.find(function(err, users){
         fullname: "Ân Nguyễn",
         phone: '9876543210',
         email: 'hongandl15@gmail.com',
-        Birthdate: '',
+        address: '209 Bui Thi Xuan',
+        Birthdate: '08/12/2022',
         balance: '0',
         firstLogin: false,
         status: 'verified',
         role: 'user',
         wrongpw: 0,
         unusuallogin: 0,
+        idCard:{
+            photofrontName: "0326009123IDCardFront",
+            photofrontPath: "D:\Web\E-wallet/data/photo/9876543210IDCardFront.jpg",
+            photobackName: "0326009123IDCardBack",
+            photobackPath: "D:\Web\E-wallet/data/photo/9876543210IDCardBack.jpg",
+        }
     }).save();
 })
 
@@ -49,7 +57,8 @@ app.engine('handlebars', hbs.engine({defaultLayout: 'main',}))
 app.use(express.urlencoded())
 app.use(session({ secret: 'fafsdhalj' }))
 app.set('view engine', 'handlebars')
-app.use(express.static(__dirname + '/data'));
+// app.use(express.static(__dirname + '/data'));
+app.use(express.static(path.join(__dirname, './public')));
 
 app.use(function(req, res, next) { // không hiển thị lại message session khi back lại trang
         res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');

@@ -1,31 +1,29 @@
 <div class="col-sm-6">
-    <form>
-        <div class="card-body">
-            <p class="card-text">Mã giao dịch: <strong>{{id}}</strong></p>
-            <p class="card-text">Loại giao dịch: <strong>{{type}}</strong></p>
-            {{#if note}}
-            <p class="card-text">Ghi chú: <strong>{{note}}</strong></p>
-            {{/if}}
-            <p class="card-text">Ngày thực hiện: <strong>{{date}}</strong></p>
-            <p class="card-text">Tổng số tiền: <strong>{{value}}</strong></p>
-            {{#if creditcard}}
-            <p class="card-text">Mã thẻ tín dụng: <strong>{{creditcard}}</strong></p>
-            {{/if}}
-            <p class="card-text">Trạng thái: <strong>{{status}}</strong></p>
-        </div>
-        {{#if card}}
-        <div>
-            <div class="card-body">
-                {{#each card}}
-                <p class="card-text">Mã thẻ: <strong>{{cardcode}} </strong></p>
-                <p class="card-text">Mệnh giá: <strong>{{cardprice}} </strong></p>
-                <br>
-                {{/each}}
-            </div>
-        </div>
+    <div class="card-body">
+        <p class="card-text">Mã giao dịch: <strong>{{id}}</strong></p>
+        <p class="card-text">Loại giao dịch: <strong>{{type}}</strong></p>
+        {{#if note}}
+        <p class="card-text">Ghi chú: <strong>{{note}}</strong></p>
         {{/if}}
-        <div >
-            <a href="/" ></a><button class="btn btn-primary" onclick="history.back()">Quay lại</button></a>
+        <p class="card-text">Ngày thực hiện: <strong>{{date}}</strong></p>
+        <p class="card-text">Tổng số tiền: <strong>{{value}}</strong></p>
+        {{#if creditcard}}
+        <p class="card-text">Mã thẻ tín dụng: <strong>{{creditcard}}</strong></p>
+        {{/if}}
+        <p class="card-text">Trạng thái: <strong>{{status}}</strong></p>
+    </div>
+    {{#if card}}
+    <div>
+        <div class="card-body">
+            {{#each card}}
+            <p class="card-text">Mã thẻ: <strong>{{cardcode}} </strong></p>
+            <p class="card-text">Mệnh giá: <strong>{{cardprice}} </strong></p>
+            <br>
+            {{/each}}
         </div>
-    </form>
+    </div>
+    {{/if}}
+    <div>
+        <a href="/" ><div class="btn btn-primary">Quay lại</div></a>
+    </div>
 </div>

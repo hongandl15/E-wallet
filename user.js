@@ -16,18 +16,20 @@ router.get('/user', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
     else if(req.session.user.firstLogin) return res.render('./Account/firstlogin', user)  
     let user = req.session.user
-    return res.render('./Account/details', {title: 'Thông tin cá nhân', user})
+    return res.render('./Account/details', {title: 'Thông tin cá nhân', ...user})
 })
 
 // Bổ sung thông tin CMND
 router.post('/addID', (req, res) => {
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin) return res.render('./Account/firstlogin') 
     var form = new formidable.IncomingForm();
     let user = req.session.user
     form.parse(req, function(err, fields, files){
             if(err) return res.redirect(303, '/404');
 
-            var photofrontName = user.phone + 'IDCardFront' // Tạo tên cho ảnh CMND mặt trước SĐT + IDCardFront
-            var photobackName = user.phone + 'IDCardBack'// Tạo tên cho ảnh CMND mặt sau SĐT + IDCardBack
+            var photofrontName = user.phone + 'IDCardFront' // Tạo tên cho ảnh CMND mặt trước = SĐT + IDCardFront
+            var photobackName = user.phone + 'IDCardBack'// Tạo tên cho ảnh CMND mặt sau = SĐT + IDCardBack
 
             // Thiết lập nơi chứa file ảnh và 
             var frontoldPath = files.photofront.filepath
@@ -56,7 +58,9 @@ router.post('/addID', (req, res) => {
 
 // changepassword - Chức năng đổi mật khẩu
 router.get('/changepassword', (req, res) => {
-    res.render('./Account/changepassword', {layout: null})
+    if (!req.session.user) return res.redirect('/login')
+    else if(req.session.user.firstLogin) return res.render('./Account/firstlogin') 
+    res.render('./Account/changepassword', {title:'Cập nhật mật khẩu'})
 })
 
 router.post('/changepassword', (req, res) => {
@@ -71,9 +75,9 @@ router.post('/changepassword', (req, res) => {
                     console.log('Đổi mật khẩu thành công') 
                 });
         }
-        else return res.render('./Account/changepassword', {message : "Mật khẩu không trùng khớp"})
+        else return res.render('./Account/changepassword', {title:'Cập nhật mật khẩu', message : "Mật khẩu không trùng khớp"})
     }
-    else return res.render('./Account/changepassword', {message : "Sai mật khẩu"})
+    else return res.render('./Account/changepassword', {title:'Cập nhật mật khẩu', message : "Sai mật khẩu"})
 
     return res.redirect('/')
     
@@ -81,7 +85,7 @@ router.post('/changepassword', (req, res) => {
 
 // recovery - Chức năng khôi phục mật khẩu
 router.get('/recovery', (req, res) => {
-    res.render('./Account/recovery', {layout: null, title: 'Khôi phục mật khẩu'})
+    res.render('./Account/recovery', {layout: 'main-login', title: 'Khôi phục mật khẩu'})
 });
 
 router.post('/recovery', (req, res) => { // Khôi phục mật khẩu qua email
@@ -122,30 +126,24 @@ router.post('/recovery', (req, res) => { // Khôi phục mật khẩu qua email
             res.redirect('/');
         }
     });
-    return res.render('./Account/recoverycode', {layout: null})
+    return res.render('./Account/recoverycode', {layout: 'main-login', title: 'Mã xác thực'})
 });
 
 router.post('/recoverypassword', (req, res) => { // Kiểm tra mã xác thực 
     if(req.body.otp == req.session.recovery)
-        return res.render('./Account/recoverypassword', {layout: null}) 
+        return res.render('./Account/recoverypassword', {layout: 'main-login', title:'Khôi phục mật khẩu'}) 
     else {
-        req.session.message = 'Sai mã xác thực'
-        res.render('./Account/recoverycode', {layout: null, title:'Khôi phục mật khẩu', message : "Sai mã xác thực"})
+        res.render('./Account/recoverycode', {layout: 'main-login', title:'Khôi phục mật khẩu', error : "Sai mã xác thực"})
     }
 });
 
 router.post('/successful', (req, res) => { // Chuyển đến trang nhập đổi mật khẩu mới 
     if(req.body.newpassword == req.body.passwordconfirm){
-        User.updateOne({email: req.session.email},
-            {$set: {password: req.body.newpassword}}, function(){
-                console.log('khôi phục mật khẩu thành công')
-            });
-        req.session.message = 'Khôi phục mật khẩu thành công, vui lòng đăng nhập để sử dụng dịch vụ'
+        User.updateOne({email: req.session.email}, {$set: {password: req.body.newpassword}}, function(){});
+        req.session.loginsuccess = 'Khôi phục mật khẩu thành công, vui lòng đăng nhập để sử dụng dịch vụ'
     }
-    else return res.render('./Account/changepassword', {layout: null, title:'Khôi phục mật khẩu', message : "Mật khẩu không trùng khớp"})
-
+    else return res.render('./Account/recoverypassword', {layout: 'main-login', title:'Khôi phục mật khẩu', error : "Mật khẩu không trùng khớp"})
     return res.redirect('/')
-    
 });
     
 module.exports = router;

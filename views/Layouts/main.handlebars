@@ -9,8 +9,9 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <title>{{{title}}}</title>
-  <link rel="stylesheet" href="/assets/wallet.css">
+  <title>EZB Wallet | {{{title}}}</title>
+  <link rel="icon" href="./assets/logoweb.png">
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
@@ -20,16 +21,19 @@
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item">
-          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/">Trang chủ</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">About Us</a>
+          <a class="nav-link" href="/deposit">Nạp tiền</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Services</a>
+          <a class="nav-link" href="/withdraw">Rút tiền</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Contact</a>
+          <a class="nav-link" href="/transfer">Chuyển tiền</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href="/history">Lịch sử giao dịch</a>
         </li>
       </ul>
       <ul class="navbar-nav"> 
@@ -38,9 +42,9 @@
             <i class="fas fa-user-circle"></i>
           </a>
           <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-            <a class="dropdown-item" href="#"><i class="fas fa-id-card"></i> Profile</a>
+            <a class="dropdown-item" href="/user"><i class="fas fa-id-card"></i> Thông tin tài khoản</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Sign out</a>
+            <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
           </div>
         </li>
       </ul>
@@ -48,8 +52,7 @@
   </nav>
   <!-- Carousel -->
   <div class="row">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-4">
+    <div class="col-sm-5 d-flex align-items-center justify-content-center">
       <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
         <ol class="carousel-indicators">
           <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
@@ -93,9 +96,8 @@
     {{{body}}}
   </div>
   <!-- Art -->
-  <div class="row" style="padding: 50px 0 50px 0">
-    <div class="col-sm-1"></div>
-    <div class="col-sm-4">
+  <div class="row d-flex flex-wrap justify-content-center" style="padding: 50px 0 50px 0">
+    <div class="col-sm-5">
       <div><strong style="color: #407BFF;">Thanh toán mọi hóa đơn</strong></div>
       <div><strong style="font-size: 50px;">Thanh toán mọi hóa đơn - đa dịch vụ</strong></div>
       <p>EZB Việt Nam mang tới giải pháp toàn diện, nhờ đó quý nhà bán, hộ kinh doanh có thể thực hiện thanh toán mọi
@@ -107,7 +109,6 @@
           đơn</strong></p>
     </div>
     <div class="col-sm-4"><img src="/assets/art.png" width="100%"></div>
-    <div class="col-sm-1"></div>
   </div>
   <!-- Bottom Nav Bar -->
   <nav class="bot-nav navbar navbar-expand-lg navbar-light">
@@ -123,38 +124,27 @@
           <h6>Copyright <i class="fa fa-copyright" aria-hidden="true"></i> EZBWallet </h6>
         </div>
       </nav>
-      <nav class="nav flex-column align-items-end">
+      <nav class="nav flex-column col-sm-3">
         <h4>Liên kết nhanh</h4>
         <li class="nav-item">
-          <a class="nav-link" href="#">Home</a>
+          <a class="nav-link" href="/">Trang chủ</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">About Us</a>
+          <a class="nav-link" href="/deposit">Nạp tiền</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Services</a>
+          <a class="nav-link" href="/withdraw">Rút tiền</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">Contact</a>
+          <a class="nav-link" href="/transfer">Chuyển tiền</a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" href="/history">Lịch sử giao dịch</a>
         </li>
       </nav>
     </div>
   </nav>
-
+    
 </body>
-   <script>
-        const formatter = new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-        });
-         $("#money").text(formatter.format($("#money").text()));
-        var delayInMilliseconds = 3000; //3 second
-
-        setTimeout(function() {
-          $("#success").hide()
-          $("#error").hide()
-          $("#warning").hide()
-        }, delayInMilliseconds);
-
-    </script>
+  <script src="./main.js"></script>
 </html>

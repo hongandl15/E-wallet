@@ -1,28 +1,37 @@
-<div class="container my-3">
-    <h4 class="my-5 text-primary text-center text-uppercase">Lịch sử giao dịch</h4>
-    <p>Chọn một giao dịch để xem chi tiết</p>
-    <table class="table table-striped border">
-        <thead>
-            <tr>     
-                <th>Mã giao dịch</th>
-                <th>Loại giao dịch</th>
-                <th>Username thực hiện</th>
-                <th>Số tiền</th>
-                <th>Thời gian thực hiện</th>
-                <th>Trạng thái</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each trans}}
-            <tr>
-                <td><a href="/admin/transaction/{{id}}">{{id}}</a></td>
-                <td>{{type}}</td>
-                <td>{{username}}</td>
-                <td>{{value}}</td>
-                <td>{{date}}</td>
-                <td>{{status}}</td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
+<div id="body__container">
+    <div class="container-fluid mt-8">
+      <div class="card">
+        <div class="card-header">
+          <h2>Ví điện tử - admin</h2>
+        </div>
+        <h3 class="my-3 text-primary text-uppercase">Quản lý giao dịch</h3>
+        <p>Chọn một giao dịch để xem chi tiết</p>
+        <div class="table-responsive">
+          <table class="table table-striped border">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Mã giao dịch</th>
+                <th scope="col">Loại giao dịch</th>
+                <th scope="col">Username thực hiện</th>
+                <th scope="col">Số tiền</th>
+                <th scope="col">Thời gian thực hiện</th>
+                <th scope="col">Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each trans}}
+                <tr>
+                  <td><a href="/admin/transaction/{{id}}">{{id}}</a></td>
+                  <td>{{type}}</td>
+                  <td>{{username}}</td>
+                  <td>{{value}}</td>
+                  <td>{{date}}</td>
+                  <td>{{status}}</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 </div>
