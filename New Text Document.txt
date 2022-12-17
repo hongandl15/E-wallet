@@ -1,0 +1,87 @@
+Thành viên:
+519H0001	Nguyễn Phạm Hồng Ân
+520H0041	Đặng Hoàng Duy
+517H0054	Hoàng Tuấn Huy
+519H0153	Võ Hoàng Đông
+519H0025	Phan Hồ Tuấn Kiệt
+
+Hướng dẫn chạy demo web:
+Chạy lệnh node app.js trong folder source
+Mặc định web sẽ được chạy ở localhost:8080
+
+
+Tài nguyên:
+
+Khi chạy ứng dụng thành công sẽ tự sinh ra dữ liệu trong database gồm 10 tài khoản user và 1 tài khoản admin để người dùng có thể kiểm thử trang web
+Người dùng có thể đăng nhập bằng các thông tin tài khoản dưới đây:
+
+Tài khoản admin:
+username: admin
+password: 123456
+
+Tài khoản 1:
+fullname: Nguyễn Hoàng
+username: 0123456781
+password: 12345
+Trạng thái: verified (Đã được xác minh)
+
+Tài khoản 2:
+fullname: Nguyễn Hoàng Duy
+username: 0123456782
+password: 12345
+Trạng thái: unverified (Chưa được xác minh)
+
+Tài khoản 3:
+fullname: Võ Hoàng Huy
+username: 0123456783
+password: 12345
+Trạng thái: blocked (Bị khóa do nhập sai password nhiều lần)
+
+Tài khoản 4:
+fullname: Võ Hoàng Đông
+username: 0123456784
+password: 12345
+Trạng thái: disabled (Đang bị vô hiệu hóa)
+
+Tài khoản 5:
+fullname: Phan Hồ Tuấn Kiệt
+username: 0123456785
+password: 12345
+Trạng thái: RequestIDCard (Yêu cầu bổ sung thông tin)
+
+
+Tài khoản 6:
+fullname: Nguyễn Minh Châu
+username: 0123456786
+password: 12345
+Trạng thái: verified (Đã được xác minh)
+
+
+Tài khoản 7:
+fullname: Vũ Ngọc Minh Hân
+username: 0123456787
+password: 12345
+Trạng thái: unverified (Chưa được xác minh)
+
+
+Tài khoản 8:
+fullname: Mai Quang Định
+username: 0123456788
+password: 12345
+Trạng thái: blocked (Bị khóa do nhập sai password nhiều lần)
+
+
+Tài khoản 9:
+fullname: Nguyễn Cảnh Tùng
+username: 0123456789
+password: 12345
+Trạng thái: disabled (Đang bị vô hiệu hóa)
+
+Tài khoản 10:
+fullname: Phan Quốc Hưng
+username: 0123456780
+password: 12345
+Trạng thái: RequestIDCard (Yêu cầu bổ sung thông tin)
+
+
+

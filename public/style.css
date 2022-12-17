@@ -157,25 +157,29 @@ input {
 
 
 .menu-title{
-box-sizing: border-box;
-text-decoration: none;
-color: black;
-font-size: 30px;
-text-align: center;
-margin: 0;
-width: 300px;
+  box-sizing: border-box;
+  text-decoration: none;
+  color: black;
+  font-size: 30px;
+  text-align: center;
+  margin: 0;
+  width: 300px;
 }
 
 .m-6{
-margin: 60px;
+  margin: 60px;
 }
 
 .menu-title:hover{
-text-decoration: none;
-opacity: 0.7;
+  text-decoration: none;
+  opacity: 0.7;
 }
 
 #money{
-color: rgb(33, 196, 0);
+  color: rgb(33, 196, 0);
+}
+
+.pt-20{
+  padding-top: 200px;
 }
 

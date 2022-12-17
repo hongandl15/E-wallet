@@ -1,6 +1,4 @@
-const { json } = require('body-parser');
 const mongoose = require('mongoose')
-
 
 var transactionSchema = mongoose.Schema({
     username: String,

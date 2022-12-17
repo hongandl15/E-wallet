@@ -1,15 +1,7 @@
 const express = require('express');
-const session = require('express-session');
 var router = express.Router();
-const User = require('./models/user.js')
-const utils = require('./utils.js')
-const nodemailer =  require('nodemailer');
-var formidable = require('formidable');
-var dataDir = __dirname + '/data';
-var PhotoDir = dataDir + '/photo';
-var fs = require('fs')
-fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
-fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
+const User = require('../models/user.js')
+const utils = require('../utils.js')
 
 // home - trang chủ
 router.get('/', (req, res) => {
@@ -21,6 +13,7 @@ router.get('/', (req, res) => {
     req.session.success = null
     req.session.error = null
     req.session.warning = null
+    req.session.firstloginerror = null
     User.findOne({username: us.username}, function(err, user){
         if(user != null){   
             req.session.user = user
@@ -52,11 +45,11 @@ router.post('/login', function(req, res){
             var blocktime = user.unusuallogintime
             if (user.status == 'disabled') {
                 // Thông báo tài khoản bị vô hiệu hóa
-                req.session.loginerror = 'tài khoản này đã bị vô hiệu hóa, vui lòng liên hệ tổng đài 18001008';
+                req.session.loginerror = 'Tài khoản này đã bị vô hiệu hóa, vui lòng liên hệ tổng đài 18001008';
                 return res.redirect("/login")
             }
             else if(user.unusuallogin == 1){// Thông báo tạm khóa tài khoản khi sai mật khẩu 3 lần
-                if(blocktime == utils.getTime(new Date)){
+                if(blocktime == utils.getTime(new Date)){ //Kiểm tra thời gian đã qua 1 phút hay chưa
                     req.session.loginerror = 'Tài khoản hiện đang bị tạm khóa, vui lòng thử lại sau 1 phút';
                     return res.redirect("/login")
                 }
@@ -99,6 +92,10 @@ router.post('/firstlogin', (req, res) => {
     if(req.body.password == req.body.passwordconfirm){         // Kiểm tra mật khẩu trùng khớp 
         User.updateOne({username: user.username}, {$set: {password: req.body.password, firstLogin: false}}, function(){}); // cập nhật lại firstLogin: false
         req.session.success = 'Đăng nhập thành công, chào mừng đến với website'
+    }
+    else{ 
+        req.session.firstloginerror = 'Mật khẩu không trùng khớp'
+        return res.render('./Account/firstlogin', {layout: 'main-login', error: req.session.firstloginerror}) 
     }
     return res.redirect('/')
 })

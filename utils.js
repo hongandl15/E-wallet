@@ -1,3 +1,5 @@
+const nodemailer =  require('nodemailer');
+
 function generate_password(n) {
     var text = "";
     var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -34,10 +36,38 @@ function getDate(inputdate){
 
 function getTime(inputdate){
     let date_ob = new Date(inputdate);
-    let hours = date_ob.getHours();
+    // let hours = date_ob.getHours();
     let minutes = date_ob.getMinutes();
-    let seconds = date_ob.getSeconds();
+    // let seconds = date_ob.getSeconds();
     return minutes
 }
 
-module.exports = {generate_password, generate_username, getDate, getTime};
+function sendmail(receiver, content, title){
+    var transporter =  nodemailer.createTransport({ // config mail server
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: 'ezbwallet@gmail.com', //Tài khoản gmail 
+            pass: 'wnbohmfbxzqnjtqn' //Mật khẩu tài khoản gmail
+        },
+        tls: {
+            rejectUnauthorized: false
+        }
+    });
+
+    var Options = { 
+        from: 'EZB Wallet',
+        to: receiver,
+        subject: title,
+        html: content //Nội dung html 
+    }
+
+    transporter.sendMail(Options, function(err, info){
+        if (err) console.log(err)
+        else console.log('Message sent: ' +  info.response);
+        
+    });
+}
+
+module.exports = {generate_password, generate_username, getDate, getTime, sendmail};

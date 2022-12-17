@@ -1,22 +1,18 @@
 const express = require('express');
-const session = require('express-session');
 var router = express.Router();
-const User = require('./models/user.js')
-const utils = require('./utils.js')
-const nodemailer =  require('nodemailer');
+const User = require('../models/user.js')
+const utils = require('../utils.js')
 var formidable = require('formidable');
-var dataDir = __dirname + '/data';
-var PhotoDir = dataDir + '/photo';
+var config = require('../config.js')
 var fs = require('fs')
-fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
-fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
 
 // details user - Xem thông tin cá nhân
 router.get('/user', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
     else if(req.session.user.firstLogin) return res.render('./Account/firstlogin', user)  
     let user = req.session.user
-    return res.render('./Account/details', {title: 'Thông tin cá nhân', ...user})
+    if(user.status == 'RequestIDCard') var addidcard = true
+    return res.render('./Account/details', {title: 'Thông tin cá nhân', ...user, addidcard})
 })
 
 // Bổ sung thông tin CMND
@@ -33,10 +29,10 @@ router.post('/addID', (req, res) => {
 
             // Thiết lập nơi chứa file ảnh và 
             var frontoldPath = files.photofront.filepath
-            var frontnewPath = PhotoDir + '/' + photofrontName + ".jpg" 
+            var frontnewPath = config.PhotoDir + '/' + photofrontName + ".jpg" 
 
             var backoldPath = files.photoback.filepath
-            var backnewPath = PhotoDir + '/' + photobackName + ".jpg"
+            var backnewPath = config.PhotoDir + '/' + photobackName + ".jpg"
             fs.copyFile(frontoldPath, frontnewPath, function (err) { //Di chuyển file ảnh CMND mặt trước
                 if (err) throw err;
             });
@@ -49,10 +45,11 @@ router.post('/addID', (req, res) => {
                     photofrontPath: frontnewPath,
                     photobackName: photobackName,
                     photobackPath: backnewPath,
-                }
+                },
+                status: 'unverified'
             }}, function(){});
     });
-    req.session.message = 'Cập nhật ảnh CMND thành công'
+    req.session.success = 'Cập nhật ảnh CMND thành công'
     return res.redirect('/')
 }) 
 
@@ -78,7 +75,7 @@ router.post('/changepassword', (req, res) => {
         else return res.render('./Account/changepassword', {title:'Cập nhật mật khẩu', message : "Mật khẩu không trùng khớp"})
     }
     else return res.render('./Account/changepassword', {title:'Cập nhật mật khẩu', message : "Sai mật khẩu"})
-
+    req.session.success = 'Đổi mật khẩu thành công'
     return res.redirect('/')
     
 })
@@ -92,18 +89,8 @@ router.post('/recovery', (req, res) => { // Khôi phục mật khẩu qua email
     var recovery = utils.generate_password(5) // Khởi tạo mã recovery code khôi phục
     req.session.recovery = recovery
     req.session.email = req.body.email
-    var transporter =  nodemailer.createTransport({ // config mail server
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: 'ezbwallet@gmail.com', //Tài khoản gmail 
-            pass: 'wnbohmfbxzqnjtqn' //Mật khẩu tài khoản gmail
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
+    
+    var title = 'Khôi phục mật khẩu'
     var content = `
             <div style="padding: 10px; background-color: white;">
                 <h4 style="color: #0085ff">Email khôi phục mật khẩu</h4>
@@ -111,21 +98,7 @@ router.post('/recovery', (req, res) => { // Khôi phục mật khẩu qua email
                 <p style="color: black">username: ` + recovery + `</p>
             </div>
     `;
-    var mainOptions = { // thiết lập đối tượng, nội dung gửi mail
-        from: 'EZB Wallet',
-        to: req.body.email,
-        subject: 'Email khôi phục mật khẩu',
-        html: content //Nội dung html
-    }
-    transporter.sendMail(mainOptions, function(err, info){ // gửi mail
-        if (err) {
-            console.log(err);
-            res.redirect('/');
-        } else {
-            console.log('Gửi mail thành công');
-            res.redirect('/');
-        }
-    });
+    utils.sendmail(req.body.email, content, title)
     return res.render('./Account/recoverycode', {layout: 'main-login', title: 'Mã xác thực'})
 });
 

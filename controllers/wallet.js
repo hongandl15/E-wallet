@@ -1,14 +1,9 @@
 const express = require('express')
 var router = express.Router();
-const Transaction = require('./models/Transaction.js')
-const User = require('./models/user.js')
-const utils = require('./utils.js')
-const nodemailer =  require('nodemailer');
-var dataDir = __dirname + '/data';
-var PhotoDir = dataDir + '/photo';
-var fs = require('fs')
-fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
-fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
+const Transaction = require('../models/Transaction.js')
+const User = require('../models/user.js')
+const utils = require('../utils.js')
+var fs = require('fs');
 
 //deposit - chức năng nạp tiền
 router.get('/deposit', (req, res,) => {
@@ -44,7 +39,7 @@ router.post('/deposit', (req, res) => {
             username: user.username,
             id: utils.generate_username(6),
             type: 'Nạp tiền',
-            date: utils.getDate(date),
+            date: date,
             status: 'Thành công',
             verified: true,
             value: req.body.money,
@@ -90,7 +85,7 @@ router.post('/withdraw', (req, res) => {
                         username: us,
                         id: utils.generate_username(6),
                         type: 'Rút tiền',
-                        date: utils.getDate(date),
+                        date: date,
                         status: 'Thành công',
                         creditcard: cardnumber,
                         cvv: cvv,
@@ -103,7 +98,7 @@ router.post('/withdraw', (req, res) => {
                         username: us,
                         id: utils.generate_username(6),
                         type: 'Rút tiền',
-                        date: utils.getDate(date),
+                        date: date,
                         status: 'Chờ phê duyệt',
                         creditcard: cardnumber,
                         cvv: cvv,
@@ -146,119 +141,84 @@ router.post('/transfer', async (req, res) => {
     let note = req.body.note
     let money = req.body.money
     let user = req.session.user
+    let senderusername = user.username
+    let senderemail = user.email
+    let balance = user.balance
     let sendername = user.fullname
     let date = new Date()
 
-    var transporter =  nodemailer.createTransport({ // config mail server
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: 'ezbwallet@gmail.com', //Tài khoản gmail 
-            pass: 'wnbohmfbxzqnjtqn' //Mật khẩu tài khoản gmail
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
-
-    if(money < 5000000){
-        if(req.body.who_pay == 'sender')
-            senderbalance = parseInt(user.balance) - parseInt(money) - (parseInt(money) * 5 / 100)
-        else
-            senderbalance = parseInt(user.balance) - parseInt(money)
-        if(senderbalance < 0){
-            req.session.transfererror = 'Số dư không đủ'
-            return res.redirect('/transfer')
-        }
-
-        User.updateOne({username: user.username}, {$set: {balance: senderbalance}}, function(){});
-
-                User.findOne({phone: req.body.phone},function(err, user){
-                    if(err) throw err
-
-                    if(req.body.who_pay == 'sender')
+        User.findOne({phone: req.body.phone},function(err, user){
+            if(user != null){ 
+                if(money < 5000000){
+                    if(req.body.who_pay == 'sender') {
+                        senderbalance = parseInt(balance) - parseInt(money) - (parseInt(money) * 5 / 100)
                         receiverbalance = parseInt(user.balance) + parseInt(money)
-                    else 
+                    }
+                    else{ 
+                        senderbalance = parseInt(balance) - parseInt(money)
                         receiverbalance = parseInt(user.balance) + parseInt(money) - (parseInt(money) * 5 / 100)
-                    User.updateOne({phone: req.body.phone}, {$set: {balance: receiverbalance}}, function(){});
+                    }
 
-                    var content2 = `
+                    if(senderbalance < 0){
+                        req.session.transfererror = 'Số dư không đủ'
+                        return res.redirect('/transfer')
+                    }
+                    User.updateOne({username: senderusername}, {$set: {balance: senderbalance}}, function(){}).lean();
+                    User.updateOne({phone: req.body.phone}, {$set: {balance: receiverbalance}}, function(){}).lean();
+                    var title = 'Giao dịch thành công'
+                    var receivercontent = `
                     <div style="padding: 10px; background-color: white;">
                         <h4 style="color: #0085ff">Giao dịch thành công</h4>
                         <p style="color: black">Bạn vừa nhận được số tiền ` + parseInt(money) + ` từ `+ sendername +`</p>
                         <p style="color: black">Số dư hiện tại của bạn là ` + receiverbalance + `</p>
                     </div>
                     `;
-                    var mainOptions2 = { 
-                        from: 'EZB Wallet',
-                        to: user.email,
-                        subject: 'Giao dịch thành công',
-                        html: content2 //Nội dung html 
-                    }
-
-                    transporter.sendMail(mainOptions2, function(err, info){
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log('Message sent: ' +  info.response);
-                        }
-                    });
-
-                    var content = `
+                    var sendercontent = `
                     <div style="padding: 10px; background-color: white;">
                         <h4 style="color: #0085ff">Giao dịch thành công</h4>
-                        <p style="color: black">Bạn vừa chuyển số tiền ` + parseInt(money) + ` cho SĐT `+ req.body.phone +`</p>
+                        <p style="color: black">Bạn vừa chuyển số tiền ` + parseInt(money) + ` cho `+ user.fullname +`</p>
                         <p style="color: black">Số dư hiện tại của bạn là ` + senderbalance + `</p>
                     </div>
                     `;
-        
-                    var mainOptions = { 
-                        from: 'EZB Wallet',
-                        to: user.email,
-                        subject: 'Giao dịch thành công',
-                        html: content 
-                    }
-        
-                    transporter.sendMail(mainOptions, function(err, info){
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log('Message sent: ' +  info.response);
-                        }
-                    });
+                    
+                    utils.sendmail(senderemail, sendercontent, title)
+                    utils.sendmail(user.email, receivercontent, title)
+
                     
                     new Transaction({
-                        username: user.username,
+                        username: senderusername,
                         receiver: req.body.phone,
                         id: utils.generate_username(6),
                         type: 'Chuyển tiền',
                         note: note,
-                        date: utils.getDate(date),
+                        date: date,
                         status: 'Thành công',
                         verified: true,
                         value: req.body.money,
                     }).save();
+                    req.session.success = 'Chuyển tiền thành công'; 
+                    return res.redirect('/') 
+                }
+                
+                new Transaction({
+                    username: senderusername,
+                    receiver: req.body.phone,
+                    id: utils.generate_username(6),    
+                    type: 'Chuyển tiền',
+                    note: note,
+                    date: date,
+                    status: 'Chờ phê duyệt',
+                    verified: false,
+                    value: req.body.money,
+                }).save(); 
+                req.session.warning = 'Chuyển tiền trên 5.000.000đ phải chờ phê duyệt'; 
+                return res.redirect('/')       
+            }
+        req.session.transfererror = 'Không tìm thấy user'
+        res.redirect('/transfer')    
+        }).lean()         
 
-                })
-                req.session.success = 'Chuyển tiền thành công'  
-                                
-    }else {
-        req.session.warning = 'Chuyển tiền trên 5.000.000đ phải chờ phê duyệt'; 
-        new Transaction({
-            username: user.username,
-            receiver: req.body.phone,
-            id: utils.generate_username(6),    
-            type: 'Chuyển tiền',
-            note: note,
-            date: utils.getDate(date),
-            status: 'Chờ phê duyệt',
-            verified: false,
-            value: req.body.money,
-        }).save(); 
-    }
-            
-    return res.redirect('/')
+    
 })
 
 
@@ -292,7 +252,7 @@ router.post('/buycard', (req, res) => {
                     if(user.balance >= value){
                         User.updateOne({username: us},
                             {$set: {balance: resultbalance} },
-                            function(){    
+                            function(){
                                 new Transaction({
                                     username: us,
                                     id: utils.generate_username(6),
@@ -303,16 +263,17 @@ router.post('/buycard', (req, res) => {
                                     value: parseInt(req.body.cardprice) * parseInt(req.body.amount),
                                     card: card
                                 }).save();
-                                console.log('Số dư hiện tại ' + resultbalance)  
-                        });
+                                console.log('Số dư hiện tại: ' + resultbalance);
+                        }).lean();
+                    return res.render('./Wallet/buysuccessful', {title:'Mua card thành công', card: card})
                     }
                     else{ 
                         req.session.buycarderror = 'Số dư không đủ'
-                        return res.redirect('/buycard')
-                    }        
+                    }
+                   
                 } 
-            });
-        return res.render('./Wallet/buysuccessful', {title:'Mua card thành công', card: card})
+                return res.redirect('/buycard')
+            }).lean();
 })
 
 

@@ -1,14 +1,8 @@
 const express = require('express')
 var router = express.Router();
-const Transaction = require('./models/Transaction.js')
-const User = require('./models/user.js')
+const Transaction = require('../models/Transaction.js')
+const User = require('../models/user.js')
 const nodemailer =  require('nodemailer');
-var dataDir = __dirname + '/data';
-var PhotoDir = dataDir + '/photo';
-var fs = require('fs')
-fs.existsSync(dataDir) || fs.mkdirSync(dataDir);
-fs.existsSync(PhotoDir) || fs.mkdirSync(PhotoDir);
-
 // Router admin
 
 //xem danh sách user
@@ -31,9 +25,19 @@ router.get('/admin/userprofile/:username', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
     else if(req.session.user.role != 'admin') return res.redirect('/')
     var us = req.params.username
+    Transaction.find({username: us}, function(err, trans){
+        if(trans != null){
+            req.session.trans = trans
+        } 
+        else {  
+            console.log(err)
+        }
+    }).lean().limit(10);
+
     User.findOne({username: us}, function(err, user){
         if(user != null){
             var status = user.status
+            var usertrans = req.session.trans
             var verify = ''
             if(status == 'blocked')
                 verify = 'Mở khóa tài khoản'
@@ -48,7 +52,7 @@ router.get('/admin/userprofile/:username', (req, res) => {
             else if (status == 'verified'){
                 var block = 'Khóa tài khoản'
             }
-            return res.render('Admin/adminuserdetails', {layout:'main-admin', title:'admin', ...user, verify, disable, addinfo, block})
+            return res.render('Admin/adminuserdetails', {layout:'main-admin', title:'admin', ...user, verify, disable, addinfo, block, usertrans: usertrans})
         } 
         else {  
             return res.redirect('/')
@@ -112,7 +116,6 @@ router.get('/admin/transaction/:id', (req, res) => {
 router.post('/admin/transaction/:id/verifytransfer', (req, res) => {
     if (!req.session.user) return res.redirect('/login')
     else if(req.session.user.role != 'admin') return res.redirect('/')
-
     let id = req.params.id
 
     var transporter =  nodemailer.createTransport({ // config mail server
@@ -130,10 +133,16 @@ router.post('/admin/transaction/:id/verifytransfer', (req, res) => {
     Transaction.findOne({id: id}, function(err, trans){
         if(trans != null){
             User.findOne({username: trans.username}, function(err, user){
-                if(user != null && parseInt(user.balance) >= (parseInt(trans.value) + parseInt(trans.value) * 5 / 100) ){
+                if(user != null){
+                    
                     senderbalance = parseInt(user.balance) - parseInt(trans.value) -  (parseInt(trans.value) * 5 / 100)
+                    if(senderbalance < 0){
+                        Transaction.updateOne({id: id}, {$set: {status: 'Thất bại'}}, function(){});
+                        req.session.error = 'Giao dịch thất bại do tài khoản gửi tiền không đủ số dư'
+                        return res.redirect('/')  
+                    }
                     console.log('sender balance ' + senderbalance)
-                    User.updateOne({username: trans.username}, {$set: {balance: senderbalance}}, function(){});
+                    User.updateOne({username: trans.username}, {$set: {balance: senderbalance}}, function(){}).lean();
                     var sendercontent = `
                     <div style="padding: 10px; background-color: white;">
                         <h4 style="color: #0085ff">Giao dịch thành công</h4>
@@ -141,68 +150,51 @@ router.post('/admin/transaction/:id/verifytransfer', (req, res) => {
                         <p style="color: black">Số dư hiện tại của bạn là ` + senderbalance + `</p>
                     </div>
                     `;
-        
-                    var mainOptions = { 
-                        from: 'EZB Wallet',
-                        to: user.email,
-                        subject: 'Giao dịch thành công',
-                        html: sendercontent //Nội dung html mình đã tạo trên kia :))
-                    }
-                
+                    var mainOptions = { from: 'EZB Wallet', to: user.email, subject: 'Giao dịch thành công', html: sendercontent}  
                     transporter.sendMail(mainOptions, function(err, info){
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log('Message sent: ' +  info.response);
-                        }
+                        if (err) console.log(err)
+                        else console.log('Email chuyển tiền đã gửi');     
                     });
-                } 
-                else { 
-                    Transaction.updateOne({id: id}, {$set: {status: 'Thất bại'}}, function(){});
-                    req.session.error = 'Giao dịch thất bại do tài khoản gửi tiền không đủ số dư'
+                
+            
+                    User.findOne({phone: trans.receiver}, function(err, user){
+                        receiverbalance = parseInt(user.balance) + parseInt(trans.value)
+                        console.log('receiver balance ' + receiverbalance)
+                        User.updateOne({phone: trans.receiver}, {$set: {balance: receiverbalance}}, function(){}).lean();
+                        
+                        var receivercontent = `
+                        <div style="padding: 10px; background-color: white;">
+                            <h4 style="color: #0085ff">Giao dịch thành công</h4>
+                            <p style="color: black">Bạn vừa nhận được số tiền ` + parseInt(trans.value) + ` từ: `+ trans.username +`</p>
+                            <p style="color: black">Số dư hiện tại của bạn là ` + receiverbalance + `</p>
+                        </div>
+                        `;
+                        var mainOptions2 = {from: 'EZB Wallet', to: user.email, subject: 'Giao dịch thành công', html: receivercontent}
+                        transporter.sendMail(mainOptions2, function(err, info){
+                            if (err) console.log(err)
+                            else console.log('Email nhận tiền đã gửi');      
+                        });
+                    }).lean();
+                    Transaction.updateOne({id: id}, {$set: {status: 'Thành công'}}, function(){}).lean(); 
+
+                }else{
+                    req.session.error = 'Không tìm thấy user'
                     return res.redirect('/')
                 }
-            }).lean();
 
-            User.findOne({phone: trans.receiver}, function(err, user){
-                if(user != null){
-                    receiverbalance = parseInt(user.balance) + parseInt(trans.value)
-                    console.log('receiver balance ' + receiverbalance)
-                    User.updateOne({phone: trans.receiver}, {$set: {balance: receiverbalance}}, function(){});
-                    
-                    var receivercontent = `
-                    <div style="padding: 10px; background-color: white;">
-                        <h4 style="color: #0085ff">Giao dịch thành công</h4>
-                        <p style="color: black">Bạn vừa nhận được số tiền ` + parseInt(trans.value) + ` từ: `+ trans.username +`</p>
-                        <p style="color: black">Số dư hiện tại của bạn là ` + receiverbalance + `</p>
-                    </div>
-                    `;
-                    var mainOptions2 = { 
-                        from: 'EZB Wallet',
-                        to: user.email,
-                        subject: 'Giao dịch thành công',
-                        html: receivercontent //Nội dung html 
-                    }
-
-                    transporter.sendMail(mainOptions2, function(err, info){
-                        if (err) {
-                            console.log(err);
-                        } else {
-                            console.log('Message sent: ' +  info.response);
-                        }
-                    });
-                } 
-                else {  
-                    return res.redirect('/')
-                }
-            }).lean();
-            Transaction.updateOne({id: id}, {$set: {status: 'Thành công'}}, function(){});
+            }).lean();   
+            
         } 
-        else {  
+        else{
+            req.session.error = 'Không tìm thấy giao dịch'
             return res.redirect('/')
         }
+
     }).lean();
-    return res.redirect('/')
+
+    
+    req.session.success = 'Giao dịch thành công'
+    return res.redirect('/')    
 })
 
 // phê duyệt giao dịch rút tiền
@@ -212,8 +204,8 @@ router.post('/admin/transaction/:id/verifywithdraw', (req, res) => {
     Transaction.findOne({id: id}, function(err, trans){
         if(trans != null){
             User.findOne({username: trans.username}, function(err, user){
-                if(user != null && parseInt(user.balance) >= (parseInt(trans.value) + parseInt(trans.value) * 5 / 100) ){
-                    balance = user.balance - parseInt(trans.value) - (parseInt(trans.value) * 5 / 100)
+                balance = user.balance - parseInt(trans.value) - (parseInt(trans.value) * 5 / 100)
+                if(balance >= 0){      
                     User.updateOne({username: trans.username}, {$set: {balance: balance}}, function(){});
                     Transaction.updateOne({id: id}, {$set: {status: 'Thành công'}}, function(){});
                 } 
@@ -224,10 +216,12 @@ router.post('/admin/transaction/:id/verifywithdraw', (req, res) => {
                 }
             }).lean();
         } 
-        else {  
+        else { 
+            req.session.error = 'Không tìm thấy giao dịch'
             return res.redirect('/')
         }
     }).lean();
+    req.session.error = 'Giao dịch thành công'
     return res.redirect('/')
 })
 
